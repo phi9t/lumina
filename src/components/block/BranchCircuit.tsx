@@ -16,17 +16,16 @@ interface BranchCircuitProps {
   onSelect: (sub: string) => void
 }
 
-/** Horizontal lanes from mainline (sideline → pre-norm → module shell) */
-const SPINE_OFFSET = 32
-const PRENORM_OFFSET = 88
-const SHELL_LEFT_OFFSET = 148
-const SHELL_WIDTH = 200
-const PRENORM_W = 96
+const SPINE_OFFSET = 24
+const PRENORM_OFFSET = 72
+const SHELL_LEFT_OFFSET = 150
+const SHELL_WIDTH = 280
+const PRENORM_W = 140
 const HEADER_H = 72
-const CARD_W = 120
-const CARD_H = 44
+const CARD_W = 200
+const CARD_H = 52
 const SHELL_PAD_BOTTOM = 16
-const MAX_STEP_GAP = 76
+const MAX_STEP_GAP = 84
 
 export function BranchCircuit({
   mainlineX,

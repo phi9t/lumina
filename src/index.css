@@ -243,7 +243,7 @@ body {
 
 .module-shell-title {
   font-family: var(--font-display);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -252,7 +252,7 @@ body {
 
 .module-shell-formula {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   fill: var(--branch-formula);
 }
 
@@ -315,7 +315,7 @@ body {
 
 .step-micro-label {
   font-family: var(--font-mono);
-  font-size: 7px;
+  font-size: 9px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   fill: rgba(148, 163, 184, 0.55);
@@ -339,7 +339,7 @@ body {
 
 .branch-title {
   font-family: var(--font-display);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -348,7 +348,7 @@ body {
 
 .branch-formula {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.02em;
   fill: var(--branch-formula);
 }
@@ -368,7 +368,7 @@ body {
 
 .module-label {
   font-family: var(--font-nerd);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   fill: var(--module-label);
 }
@@ -379,7 +379,7 @@ body {
 
 .module-sub {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.01em;
   fill: var(--module-sub);
 }

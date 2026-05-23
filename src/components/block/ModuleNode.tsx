@@ -52,7 +52,7 @@ export function ModuleNode({
       />
       <text
         x={x}
-        y={hasMicro ? y - 10 : sub ? y - 4 : y}
+        y={hasMicro ? y - 12 : sub ? y - 6 : y}
         textAnchor="middle"
         dominantBaseline="middle"
         className={`module-label${active ? ' module-label--active' : ''}`}
@@ -62,7 +62,7 @@ export function ModuleNode({
       {sub && (
         <text
           x={x}
-          y={hasMicro ? y + 2 : y + 12}
+          y={hasMicro ? y + 2 : y + 10}
           textAnchor="middle"
           dominantBaseline="middle"
           className="module-sub"
@@ -71,7 +71,7 @@ export function ModuleNode({
         </text>
       )}
       {hasMicro && (
-        <text x={x} y={y + 16} textAnchor="middle" className="step-micro-label">
+        <text x={x} y={y + 18} textAnchor="middle" className="step-micro-label">
           {micro.join(' · ')}
         </text>
       )}

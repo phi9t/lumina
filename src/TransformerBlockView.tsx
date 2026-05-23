@@ -4,7 +4,7 @@ import { MainlineRailVertical } from '@/components/block/MainlineRail'
 import { ModuleNode } from '@/components/block/ModuleNode'
 import type { AttentionSub, FfnSub, MainlineSub, SelectedModule } from '@/types/blockSelection'
 
-const VIEW_W = 460
+const VIEW_W = 520
 const VIEW_H = 1100
 
 /** Vertical residual mainline (top → bottom) — keep clear of branch sideline */
@@ -57,10 +57,10 @@ export function TransformerBlockView({ selected, onSelect }: TransformerBlockVie
         aria-label="Transformer block with vertical residual mainline, pre-norm on branch spine, and vertical action sequences inside module shells"
       >
         <g className={`block-view${hasSelection ? ' block-view--focused' : ''}`}>
-          <text x={MAINLINE_X + 180} y={28} textAnchor="middle" className="block-title">
+          <text x={MAINLINE_X + 215} y={28} textAnchor="middle" className="block-title">
             Transformer block · residual mainline ↓
           </text>
-          <text x={MAINLINE_X + 180} y={48} textAnchor="middle" className="block-subtitle">
+          <text x={MAINLINE_X + 215} y={48} textAnchor="middle" className="block-subtitle">
             x → x + Attn(LN(x)) → that + FFN(LN(·))
           </text>
 

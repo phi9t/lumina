@@ -10,6 +10,11 @@
 - KV cache timeline runs left→right (earliest left, current token right); highlight attention edges and cache positions clearly.
 - RoPE per-pair visualization belongs as a drilldown from the Attention branch, not a separate top-level page.
 - Use FiraCode Nerd Font across UI and SVG diagram labels (local install preferred, CDN fallback acceptable).
+- **Aesthetics**: Prefer a strict industrial technical design. Use matte grid backgrounds, sharp 1px borders, tight drop shadows, and deep carbon/slate tones. Avoid blurry pastel glows, gradients, or floaty physics; use snappy spring animations.
+- **Layout Density**: Maximize horizontal space efficiency. Pack branch circuits extremely close to the vertical mainline to minimize SVG width.
+- **Component Sizing**: Favor massive, ultra-wide module plates with prominently upscaled font sizes to maximize technical legibility.
+- **Information Architecture**: Utilize a widescreen 3-column layout on large screens: `Transformer Block (Left) | Mathematical Detail Drawer (Center) | RoPE 3D Dashboard (Right)`.
+- **Technical Details**: Always include rigorous tensor shape annotations (e.g., `[B, T, d_model]`) and explicit implementation pseudocode (JAX/PyTorch style) inside module drill-downs.
 
 ## Learned Workspace Facts
 
