@@ -1,15 +1,32 @@
-# RoPE Visualizer
+<p align="center">
+  <img src="docs/assets/lumina-logo.svg" alt="Lumina logo" width="680">
+</p>
 
-Interactive transformer-layer and rotary-position-embedding workbench for exploring one pre-norm decoder layer.
+# Lumina
 
-The app is built as a technical inspection surface rather than a landing page. It keeps the transformer block compact, puts detailed math in the center drawer, and preserves a persistent right-hand control dashboard for live layer/accounting changes.
+Lumina is an interactive transformer-layer exploration workbench. It started as a RoPE visualizer, but now covers the full shape of one pre-norm decoder layer: residual flow, Attention, FFN/SwiGLU, tensor shapes, compute/memory accounting, KV cache behavior, parallelism cues, and RoPE mechanics.
+
+<p align="center">
+  <img src="docs/assets/lumina-demo.png" alt="Lumina transformer layer explorer demo screenshot" width="900">
+</p>
+
+## Demo
+
+GitHub Pages deployment is configured for:
+
+```text
+https://phi9t.github.io/lumina/
+```
+
+The Pages workflow builds from `main` and deploys the static `dist/` output.
 
 ## Current Experience
 
 - **Left:** compact SVG transformer block map with residual mainline, Attention branch, FFN/SwiGLU branch, and residual `+` merges.
 - **Center:** selected-module detail drawer with tensor path, source cue, formula, accounting metrics, and implementation-style pseudocode.
-- **RoPE drilldown:** Identity, Cache, and Spectrum views for interactively exploring rotary position behavior.
-- **Right:** transformer layer controls, source-concept lenses, KV cache estimates, and live compute/memory/shape readouts.
+- **Layer lenses:** flow, shapes, compute, memory, and parallelism views grounded in the same layer model.
+- **RoPE workbench:** Identity, Cache, and Spectrum views for interactively exploring rotary position behavior.
+- **Right:** persistent layer controls, source-concept chips, KV cache estimates, and live compute/memory/shape readouts.
 - **Optional 3D:** a lazily loaded `3D reference` scene for RoPE, kept secondary to the 2D workbench.
 
 ## Stack
@@ -100,7 +117,7 @@ npm run build
 
 The static output is written to `dist/` and can be deployed to any static host.
 
-The primary app bundle is separated from the optional WebGL reference scene. Vite's chunk warning limit is set to allow the lazy Three.js chunk while keeping the main app path smaller.
+For GitHub Pages, the workflow sets `GITHUB_PAGES=true`, which makes Vite build with `base: /lumina/`.
 
 ## Design Direction
 
