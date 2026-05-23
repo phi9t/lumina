@@ -11,6 +11,21 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.*
+!.env.example
+
+# Test/build artifacts
+coverage
+.coverage
+playwright-report
+test-results
+*.tsbuildinfo
+
+# Local agent/editor state
+.cursor/
+.antigravitycli/
+.codex/
 
 # Editor directories and files
 .vscode/*

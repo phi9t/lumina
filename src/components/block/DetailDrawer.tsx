@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
-import type { RopeStateProps } from '@/RopeThreeJSVisualizer'
+import type { RopeStateProps } from '@/components/rope/ropeTypes'
 import { RopeWorkbench } from '@/components/rope/RopeWorkbench'
 import type { LayerModel, Lens, ModuleAccounting } from '@/lib/layerModel'
 import { formatBytes, formatCount } from '@/lib/layerModel'

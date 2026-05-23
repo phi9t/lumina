@@ -5,9 +5,9 @@ import { Slider } from '@/components/ui/slider'
 import { Card, CardContent } from '@/components/ui/card'
 import type { LayerConfig, LayerModel, Lens } from '@/lib/layerModel'
 import { LENS_EXPLANATIONS, formatBytes, formatCount } from '@/lib/layerModel'
-import type { RopeStateProps } from '@/components/rope/RopeScene3D'
+import type { RopeStateProps } from '@/components/rope/ropeTypes'
 
-export type { RopeStateProps } from '@/components/rope/RopeScene3D'
+export type { RopeStateProps } from '@/components/rope/ropeTypes'
 
 const PALETTE = {
   query: '#38bdf8',

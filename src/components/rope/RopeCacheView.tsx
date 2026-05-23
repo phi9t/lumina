@@ -1,4 +1,4 @@
-import type { RopeStateProps } from '@/RopeThreeJSVisualizer'
+import type { RopeStateProps } from './ropeTypes'
 import type { LayerModel } from '@/lib/layerModel'
 import { formatBytes } from '@/lib/layerModel'
 

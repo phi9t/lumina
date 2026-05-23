@@ -1,4 +1,4 @@
-import type { RopeStateProps } from '@/RopeThreeJSVisualizer'
+import type { RopeStateProps } from './ropeTypes'
 import { cycleProgress, phaseGap, ropeFrequencies, wrapCount } from '@/lib/ropeMath'
 
 interface RopeSpectrumViewProps {

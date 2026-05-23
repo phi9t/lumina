@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react'
-import { RopeDetailPanel, type RopeStateProps } from '@/components/rope/RopeScene3D'
+import { Suspense, lazy, useMemo, useState } from 'react'
 import { RopeCacheView } from '@/components/rope/RopeCacheView'
 import { RopeIdentityView } from '@/components/rope/RopeIdentityView'
 import { RopeSpectrumView } from '@/components/rope/RopeSpectrumView'
 import type { LayerModel } from '@/lib/layerModel'
 import { formatBytes } from '@/lib/layerModel'
 import { selectedPairValues, type Vec2 } from '@/lib/ropeMath'
+import type { RopeStateProps } from './ropeTypes'
 
 type RopeWorkbenchTab = 'identity' | 'cache' | 'spectrum'
 
@@ -19,12 +19,16 @@ const TABS: Array<{ id: RopeWorkbenchTab; label: string }> = [
   { id: 'cache', label: 'Cache' },
   { id: 'spectrum', label: 'Spectrum' },
 ]
+const RopeDetailPanel = lazy(() =>
+  import('@/components/rope/RopeScene3D').then((module) => ({ default: module.RopeDetailPanel })),
+)
 const Q_BASE: Vec2 = [0.9, 0.35]
 const K_BASE: Vec2 = [0.55, 0.85]
 
 export function RopeWorkbench({ ropeState, layerModel }: RopeWorkbenchProps) {
   const [activeTab, setActiveTab] = useState<RopeWorkbenchTab>('identity')
   const [selectedPair, setSelectedPair] = useState(0)
+  const [showScene, setShowScene] = useState(false)
   const maxPair = Math.max(0, Math.floor(ropeState.headDim / 2) - 1)
   const pairIndex = Math.min(selectedPair, maxPair)
   const pair = useMemo(
@@ -86,9 +90,13 @@ export function RopeWorkbench({ ropeState, layerModel }: RopeWorkbenchProps) {
         )}
       </div>
 
-      <details className="rope-workbench__scene">
+      <details className="rope-workbench__scene" onToggle={(event) => setShowScene(event.currentTarget.open)}>
         <summary>3D reference</summary>
-        <RopeDetailPanel {...ropeState} />
+        {showScene && (
+          <Suspense fallback={<div className="rope-workbench__scene-loading">Loading 3D reference...</div>}>
+            <RopeDetailPanel {...ropeState} />
+          </Suspense>
+        )}
       </details>
     </div>
   )

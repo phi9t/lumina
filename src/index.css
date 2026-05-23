@@ -860,6 +860,13 @@ body {
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
 }
 
+.rope-workbench__scene-loading {
+  color: rgba(148, 163, 184, 0.82);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 16px;
+}
+
 .rope-identity {
   width: 100%;
 }

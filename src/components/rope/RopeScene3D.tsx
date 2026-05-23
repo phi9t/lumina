@@ -2,15 +2,9 @@ import { useMemo } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Line, OrbitControls, Text } from '@react-three/drei'
 import { cycleProgress, ropeFrequencies, selectedPairValues, type Vec2 } from '@/lib/ropeMath'
+import type { RopeStateProps } from './ropeTypes'
 
 type Vec3 = [number, number, number]
-
-export interface RopeStateProps {
-  posI: number
-  posJ: number
-  headDim: number
-  base: number
-}
 
 const Q_BASE: Vec2 = [0.9, 0.35]
 const K_BASE: Vec2 = [0.55, 0.85]

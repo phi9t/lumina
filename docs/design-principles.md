@@ -37,3 +37,10 @@ The left block should not carry the full explanation. If text is explanatory rat
 ## Codex UI Iteration Rule
 
 Codex should execute against concrete constraints: screenshots, component scale, token values, spacing targets, and local design patterns. Avoid broad aesthetic rewrites unless the user provides a new visual direction.
+
+## Production Constraints
+
+- Keep the first-load path focused on the 2D workbench and dashboard.
+- Lazy-load optional WebGL/Three.js surfaces.
+- Do not commit local agent state, generated screenshots, coverage, or build output.
+- Changes should pass `npm run check` and `npm run build` before commit.
