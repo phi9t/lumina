@@ -4,19 +4,19 @@ import { MainlineRailVertical } from '@/components/block/MainlineRail'
 import { ModuleNode } from '@/components/block/ModuleNode'
 import type { AttentionSub, FfnSub, MainlineSub, SelectedModule } from '@/types/blockSelection'
 
-const VIEW_W = 520
-const VIEW_H = 1100
+const VIEW_W = 430
+const VIEW_H = 990
 
 /** Vertical residual mainline (top → bottom) — keep clear of branch sideline */
 const MAINLINE_X = 72
 
-const Y_IN = 76
-const Y_ATTN_TEE = 120
-const Y_J1 = 540
+const Y_IN = 64
+const Y_ATTN_TEE = 100
+const Y_J1 = 485
 /** FFN tees below first junction label */
-const Y_FFN_TEE = Y_J1 + 40
-const Y_J2 = 920
-const Y_OUT = 1040
+const Y_FFN_TEE = Y_J1 + 48
+const Y_J2 = 845
+const Y_OUT = 930
 
 const ATTENTION_BRANCH: BranchDef = {
   preNorm: { id: 'ln', label: 'LayerNorm', sub: 'pre-norm' },
@@ -57,17 +57,17 @@ export function TransformerBlockView({ selected, onSelect }: TransformerBlockVie
         aria-label="Transformer block with vertical residual mainline, pre-norm on branch spine, and vertical action sequences inside module shells"
       >
         <g className={`block-view${hasSelection ? ' block-view--focused' : ''}`}>
-          <text x={MAINLINE_X + 215} y={28} textAnchor="middle" className="block-title">
+          <text x={MAINLINE_X + 165} y={28} textAnchor="middle" className="block-title">
             Transformer block · residual mainline ↓
           </text>
-          <text x={MAINLINE_X + 215} y={48} textAnchor="middle" className="block-subtitle">
+          <text x={MAINLINE_X + 165} y={46} textAnchor="middle" className="block-subtitle">
             x → x + Attn(LN(x)) → that + FFN(LN(·))
           </text>
 
           <BranchCircuit
             branchKind="attention"
             title="Attention"
-            formula="Attn(LN(x))"
+            formula=""
             mainlineX={MAINLINE_X}
             teeY={Y_ATTN_TEE}
             junctionY={Y_J1}
@@ -77,8 +77,8 @@ export function TransformerBlockView({ selected, onSelect }: TransformerBlockVie
           />
           <BranchCircuit
             branchKind="ffn"
-            title="FFN / MoE"
-            formula="FFN(LN(x))"
+            title="FFN / SwiGLU"
+            formula=""
             mainlineX={MAINLINE_X}
             teeY={Y_FFN_TEE}
             junctionY={Y_J2}
@@ -102,23 +102,25 @@ export function TransformerBlockView({ selected, onSelect }: TransformerBlockVie
           <ModuleNode
             x={MAINLINE_X}
             y={Y_IN}
-            width={64}
+            width={68}
             height={30}
             variant="pill"
             label="x_in"
             active={mainSub === 'in'}
             dimmed={hasSelection && mainSub !== 'in'}
+            showDetails={false}
             onSelect={() => onSelect({ branch: 'mainline', submodule: 'in' })}
           />
           <ModuleNode
             x={MAINLINE_X}
             y={Y_OUT}
-            width={64}
+            width={68}
             height={30}
             variant="pill"
             label="x_out"
             active={mainSub === 'out'}
             dimmed={hasSelection && mainSub !== 'out'}
+            showDetails={false}
             onSelect={() => onSelect({ branch: 'mainline', submodule: 'out' })}
           />
 

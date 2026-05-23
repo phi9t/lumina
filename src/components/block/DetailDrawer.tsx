@@ -1,11 +1,16 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
-import { RopeDetailPanel, type RopeStateProps } from '@/RopeThreeJSVisualizer'
+import type { RopeStateProps } from '@/RopeThreeJSVisualizer'
+import { RopeWorkbench } from '@/components/rope/RopeWorkbench'
+import type { LayerModel, Lens, ModuleAccounting } from '@/lib/layerModel'
+import { formatBytes, formatCount } from '@/lib/layerModel'
 import { selectionKey, type SelectedModule } from '@/types/blockSelection'
 
 interface DetailDrawerProps {
   selected: SelectedModule
   ropeState: RopeStateProps
+  lens: Lens
+  layerModel: LayerModel
   onClose: () => void
 }
 
@@ -111,19 +116,71 @@ const DETAILS: Record<string, DetailMeta> = {
   },
 }
 
-function DetailPlaceholder({ meta }: { meta: DetailMeta }) {
+function accountingFor(key: string, model: LayerModel): ModuleAccounting | null {
+  const lookup: Record<string, ModuleAccounting> = {
+    'attention:ln': model.modules.attentionLn,
+    'attention:qkv': model.modules.qkv,
+    'attention:rope': model.modules.rope,
+    'attention:softmax': model.modules.attention,
+    'attention:oproj': model.modules.oproj,
+    'ffn:ln': model.modules.ffnLn,
+    'ffn:up': model.modules.ffnUp,
+    'ffn:act': model.modules.ffnAct,
+    'ffn:down': model.modules.ffnDown,
+    'mainline:junction1': model.modules.residualAdd1,
+    'mainline:junction2': model.modules.residualAdd2,
+  }
+  return lookup[key] ?? null
+}
+
+function MetricPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="detail-placeholder">
-      {meta.formula && <div className="detail-formula">{meta.formula}</div>}
-      {meta.shapes && <div className="detail-shapes">{meta.shapes}</div>}
-      {meta.code && <div className="detail-code-block">{meta.code}</div>}
-      {meta.body && <p className="detail-body">{meta.body}</p>}
-      <p className="detail-hint">Drill-down for this module is not yet implemented. Click another module or press Esc to return.</p>
+    <div className="detail-metric">
+      <span className="detail-metric__label">{label}</span>
+      <span className="detail-metric__value">{value}</span>
     </div>
   )
 }
 
-export function DetailDrawer({ selected, ropeState, onClose }: DetailDrawerProps) {
+function DetailExplorer({ meta, accounting, lens }: { meta: DetailMeta; accounting: ModuleAccounting | null; lens: Lens }) {
+  return (
+    <div className="detail-explorer">
+      <div className="detail-section">
+        <div className="detail-section__label">What it does</div>
+        <p className="detail-body">{accounting?.summary ?? meta.subtitle}</p>
+      </div>
+
+      <div className="detail-grid">
+        <div className="detail-section">
+          <div className="detail-section__label">Tensor path</div>
+          <div className="detail-shapes">
+            {accounting ? `${accounting.inputShape} → ${accounting.outputShape}` : meta.shapes}
+          </div>
+        </div>
+        <div className="detail-section">
+          <div className="detail-section__label">Source cue</div>
+          <div className="detail-source-cue">{accounting?.sourceCue ?? 'one-layer transformer block'}</div>
+        </div>
+      </div>
+
+      {meta.formula && <div className="detail-formula">{meta.formula}</div>}
+
+      {accounting && (
+        <div className={`detail-accounting detail-accounting--${lens}`}>
+          <MetricPill label="params" value={formatCount(accounting.params)} />
+          <MetricPill label="FLOPs" value={formatCount(accounting.flops)} />
+          <MetricPill label="activation / scores" value={formatBytes(accounting.memoryBytes)} />
+          <MetricPill label="parallelism" value={accounting.parallelism.join(' / ')} />
+        </div>
+      )}
+
+      {meta.code && <div className="detail-code-block">{meta.code}</div>}
+      <p className="detail-hint">Estimates are per layer unless a metric explicitly includes all layers.</p>
+    </div>
+  )
+}
+
+export function DetailDrawer({ selected, ropeState, lens, layerModel, onClose }: DetailDrawerProps) {
   return (
     <AnimatePresence mode="wait">
       {selected && (
@@ -136,7 +193,7 @@ export function DetailDrawer({ selected, ropeState, onClose }: DetailDrawerProps
           className="detail-drawer"
         >
           <DetailHeader selected={selected} onClose={onClose} />
-          <DetailBody selected={selected} ropeState={ropeState} />
+          <DetailBody selected={selected} ropeState={ropeState} lens={lens} layerModel={layerModel} />
         </motion.div>
       )}
     </AnimatePresence>
@@ -164,21 +221,33 @@ function DetailHeader({ selected, onClose }: { selected: NonNullable<SelectedMod
   )
 }
 
-function DetailBody({ selected, ropeState }: { selected: NonNullable<SelectedModule>; ropeState: RopeStateProps }) {
+function DetailBody({
+  selected,
+  ropeState,
+  lens,
+  layerModel,
+}: {
+  selected: NonNullable<SelectedModule>
+  ropeState: RopeStateProps
+  lens: Lens
+  layerModel: LayerModel
+}) {
   const key = selectionKey(selected)
   const meta = DETAILS[key] ?? { title: key, subtitle: '' }
+  const accounting = accountingFor(key, layerModel)
 
   if (key === 'attention:rope') {
     return (
       <div className="detail-drawer__body detail-drawer__body--rope">
-        <RopeDetailPanel {...ropeState} />
+        <DetailExplorer meta={meta} accounting={accounting} lens={lens} />
+        <RopeWorkbench ropeState={ropeState} layerModel={layerModel} />
       </div>
     )
   }
 
   return (
     <div className="detail-drawer__body">
-      <DetailPlaceholder meta={meta} />
+      <DetailExplorer meta={meta} accounting={accounting} lens={lens} />
     </div>
   )
 }

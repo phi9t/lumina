@@ -6,6 +6,7 @@ interface VerticalStepChainProps {
   topY: number
   bottomY: number
   steps: CircuitModuleDef[]
+  getBadge?: (id: string) => string | undefined
   cardW?: number
   cardH?: number
   selectedSub: string | null
@@ -24,6 +25,7 @@ export function VerticalStepChain({
   topY,
   bottomY,
   steps,
+  getBadge,
   cardW = 120,
   cardH = 44,
   selectedSub,
@@ -31,7 +33,7 @@ export function VerticalStepChain({
   arrowMarkerId,
 }: VerticalStepChainProps) {
   const ys = stepYs(topY, bottomY, steps.length)
-  const busX = centerX - cardW / 2 - 14
+  const busX = centerX - cardW / 2 - 10
 
   return (
     <g className="step-chain">
@@ -67,8 +69,10 @@ export function VerticalStepChain({
               label={m.label}
               sub={m.sub}
               micro={m.micro}
+              badge={getBadge?.(m.id)}
               active={selectedSub === m.id}
               dimmed={selectedSub != null && selectedSub !== m.id}
+              showDetails={false}
               onSelect={() => onSelect(m.id)}
             />
           </g>

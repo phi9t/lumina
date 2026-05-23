@@ -11,7 +11,7 @@
 
 Goal: make transformer-layer source concepts easier to explore, fix LHS module text legibility, and replace the RoPE drilldown with Identity/Cache/Spectrum workbench views.
 
-* TODO Task 1: Establish RoPE math helpers and tests
+* DONE Task 1: Establish RoPE math helpers and tests
 :PROPERTIES:
 :FILES: src/lib/ropeMath.ts src/lib/ropeMath.test.ts
 :VERIFY: npm test -- src/lib/ropeMath.test.ts
@@ -22,7 +22,7 @@ Goal: make transformer-layer source concepts easier to explore, fix LHS module t
 - Test base/head-dim effects on frequency schedule.
 - Test phase gap and wrap count with known values.
 
-* TODO Task 2: Refactor RoPE drilldown entry point
+* DONE Task 2: Refactor RoPE drilldown entry point
 :PROPERTIES:
 :FILES: src/components/block/DetailDrawer.tsx src/components/rope/RopeWorkbench.tsx
 :VERIFY: npm run build
@@ -33,7 +33,7 @@ Goal: make transformer-layer source concepts easier to explore, fix LHS module t
 - Keep the structured detail cards around RoPE accounting/source cue.
 - Preserve Esc close behavior and selection behavior.
 
-* TODO Task 3: Build Identity view
+* DONE Task 3: Build Identity view
 :PROPERTIES:
 :FILES: src/components/rope/RopeIdentityView.tsx src/components/rope/RopeWorkbench.tsx src/index.css
 :VERIFY: npm test && npm run build
@@ -44,7 +44,7 @@ Goal: make transformer-layer source concepts easier to explore, fix LHS module t
 - Show equal score readouts and a visible equality bridge.
 - Add selected frequency-pair control and shared readout row.
 
-* TODO Task 4: Build Cache view
+* DONE Task 4: Build Cache view
 :PROPERTIES:
 :FILES: src/components/rope/RopeCacheView.tsx src/components/rope/RopeWorkbench.tsx src/index.css
 :VERIFY: npm run build
@@ -56,7 +56,7 @@ Goal: make transformer-layer source concepts easier to explore, fix LHS module t
 - Show live KV cache formula and byte result from layerModel.
 - Show decode vs prefill/training mode hint.
 
-* TODO Task 5: Build Spectrum view
+* DONE Task 5: Build Spectrum view
 :PROPERTIES:
 :FILES: src/components/rope/RopeSpectrumView.tsx src/components/rope/RopeWorkbench.tsx src/index.css
 :VERIFY: npm run build
@@ -67,7 +67,7 @@ Goal: make transformer-layer source concepts easier to explore, fix LHS module t
 - Highlight selected pair from Identity view.
 - Ensure base and headDim updates change the spectrum live.
 
-* TODO Task 6: Simplify or contain existing Three.js RoPE scene
+* DONE Task 6: Simplify or contain existing Three.js RoPE scene
 :PROPERTIES:
 :FILES: src/components/rope/RopeScene3D.tsx src/RopeThreeJSVisualizer.tsx src/components/rope/RopeWorkbench.tsx
 :VERIFY: npm run build
@@ -78,7 +78,7 @@ Goal: make transformer-layer source concepts easier to explore, fix LHS module t
 - Keep manual camera drag and remove decorative emphasis that competes with explanation.
 - Make 3D optional/supporting inside the workbench, not the primary explanation.
 
-* TODO Task 7: Improve LHS transformer layer text legibility
+* DONE Task 7: Improve LHS transformer layer text legibility
 :PROPERTIES:
 :FILES: src/TransformerBlockView.tsx src/components/block/BranchCircuit.tsx src/components/block/ModuleNode.tsx src/index.css
 :VERIFY: npm run build
@@ -89,7 +89,7 @@ Goal: make transformer-layer source concepts easier to explore, fix LHS module t
 - Shorten SVG lens badge text for shapes, compute, memory, and parallelism.
 - Verify labels, subtitles, micro labels, and badges do not overlap.
 
-* TODO Task 8: Improve source concept discoverability in dashboard
+* DONE Task 8: Improve source concept discoverability in dashboard
 :PROPERTIES:
 :FILES: src/RopeThreeJSVisualizer.tsx src/lib/layerModel.ts src/index.css
 :VERIFY: npm test && npm run build
@@ -100,7 +100,7 @@ Goal: make transformer-layer source concepts easier to explore, fix LHS module t
 - Avoid long copied source text.
 - Ensure dashboard still functions as the right-hand control surface.
 
-* TODO Task 9: Browser verification and polish
+* DONE Task 9: Browser verification and polish
 :PROPERTIES:
 :FILES: src/index.css affected UI components
 :VERIFY: npm test && npm run lint && npm run build

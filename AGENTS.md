@@ -11,8 +11,9 @@
 - RoPE per-pair visualization belongs as a drilldown from the Attention branch, not a separate top-level page.
 - Use FiraCode Nerd Font across UI and SVG diagram labels (local install preferred, CDN fallback acceptable).
 - **Aesthetics**: Prefer a strict industrial technical design. Use matte grid backgrounds, sharp 1px borders, tight drop shadows, and deep carbon/slate tones. Avoid blurry pastel glows, gradients, or floaty physics; use snappy spring animations.
-- **Layout Density**: Maximize horizontal space efficiency. Pack branch circuits extremely close to the vertical mainline to minimize SVG width.
-- **Component Sizing**: Favor massive, ultra-wide module plates with prominently upscaled font sizes to maximize technical legibility.
+- **Layout Density**: Keep the left transformer block compact and proportional to the center/right panels. Pack branch circuits close to the vertical mainline, but avoid oversized plates that dominate the page.
+- **Component Sizing**: Treat the left transformer block as a structural navigation diagram: simple module names, restrained typography, compact plates, and minimal inline text. Put formulas, tensor shapes, accounting, and pseudocode in the center detail drawer.
+- **Design Workflow**: Prefer explicit visual constraints over vague polish prompts. When iterating UI, align against screenshots, concrete spacing/type targets, and existing component scale before inventing new visual language.
 - **Information Architecture**: Utilize a widescreen 3-column layout on large screens: `Transformer Block (Left) | Mathematical Detail Drawer (Center) | RoPE 3D Dashboard (Right)`.
 - **Technical Details**: Always include rigorous tensor shape annotations (e.g., `[B, T, d_model]`) and explicit implementation pseudocode (JAX/PyTorch style) inside module drill-downs.
 

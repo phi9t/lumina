@@ -4,11 +4,12 @@ interface JunctionNodeProps {
   x: number
   y: number
   label?: string
+  badge?: string | null
   active: boolean
   onSelect: () => void
 }
 
-export function JunctionNode({ x, y, label, active, onSelect }: JunctionNodeProps) {
+export function JunctionNode({ x, y, label, badge, active, onSelect }: JunctionNodeProps) {
   return (
     <motion.g
       style={{ cursor: 'pointer', transformOrigin: `${x}px ${y}px` }}
@@ -23,6 +24,11 @@ export function JunctionNode({ x, y, label, active, onSelect }: JunctionNodeProp
       {label && (
         <text x={x} y={y + 36} textAnchor="middle" className="junction-label">
           {label}
+        </text>
+      )}
+      {badge && (
+        <text x={x + 86} y={y + 4} textAnchor="start" className="junction-badge">
+          {badge}
         </text>
       )}
     </motion.g>

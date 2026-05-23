@@ -16,16 +16,16 @@ interface BranchCircuitProps {
   onSelect: (sub: string) => void
 }
 
-const SPINE_OFFSET = 24
-const PRENORM_OFFSET = 72
-const SHELL_LEFT_OFFSET = 150
-const SHELL_WIDTH = 280
-const PRENORM_W = 140
-const HEADER_H = 72
-const CARD_W = 200
-const CARD_H = 52
-const SHELL_PAD_BOTTOM = 16
-const MAX_STEP_GAP = 84
+const SPINE_OFFSET = 18
+const PRENORM_OFFSET = 52
+const SHELL_LEFT_OFFSET = 100
+const SHELL_WIDTH = 220
+const PRENORM_W = 116
+const HEADER_H = 54
+const CARD_W = 164
+const CARD_H = 42
+const SHELL_PAD_BOTTOM = 12
+const MAX_STEP_GAP = 66
 
 export function BranchCircuit({
   mainlineX,
@@ -44,15 +44,15 @@ export function BranchCircuit({
   const shellLeft = mainlineX + SHELL_LEFT_OFFSET
   const shellCenterX = shellLeft + SHELL_WIDTH / 2
   const span = junctionY - teeY
-  const shellTop = teeY + Math.min(64, span * 0.24)
-  const innerH = span - (shellTop - teeY) - SHELL_PAD_BOTTOM - 16
+  const shellTop = teeY + Math.min(46, span * 0.2)
+  const innerH = span - (shellTop - teeY) - SHELL_PAD_BOTTOM - 14
   const stepGap =
     steps.length > 1
       ? Math.min(MAX_STEP_GAP, (innerH - HEADER_H - CARD_H) / (steps.length - 1))
       : MAX_STEP_GAP
   const chainTop = shellTop + HEADER_H
   const chainBottom = chainTop + Math.max(0, steps.length - 1) * stepGap
-  const shellBottom = Math.min(junctionY - 12, chainBottom + CARD_H / 2 + SHELL_PAD_BOTTOM)
+  const shellBottom = Math.min(junctionY - 10, chainBottom + CARD_H / 2 + SHELL_PAD_BOTTOM)
   const preNormY = teeY + (shellTop - teeY) * 0.45
   const top = Math.min(teeY, junctionY)
   const bottom = Math.max(teeY, junctionY, shellBottom + 12)
@@ -88,7 +88,7 @@ export function BranchCircuit({
         width={shellLeft + SHELL_WIDTH - spineX + 16}
         height={bottom - top - 6}
         className="branch-corridor"
-        rx={12}
+        rx={8}
       />
 
       <line x1={spineX} y1={teeY} x2={spineX} y2={junctionY} className="branch-spine-rail" />
@@ -99,14 +99,16 @@ export function BranchCircuit({
         width={SHELL_WIDTH}
         height={shellBottom - shellTop}
         className="module-shell"
-        rx={10}
+        rx={8}
       />
-      <text x={shellCenterX} y={shellTop + 18} textAnchor="middle" className="module-shell-title">
+      <text x={shellCenterX} y={shellTop + 22} textAnchor="middle" className="module-shell-title">
         {title}
       </text>
-      <text x={shellCenterX} y={shellTop + 32} textAnchor="middle" className="module-shell-formula">
-        {formula}
-      </text>
+      {formula && (
+        <text x={shellCenterX} y={shellTop + 50} textAnchor="middle" className="module-shell-formula">
+          {formula}
+        </text>
+      )}
 
       <path d={entryPath} className="branch-wire-halo" fill="none" />
       <path d={entryPath} className="branch-wire" fill="none" />
@@ -146,11 +148,12 @@ export function BranchCircuit({
           x={preNormX}
           y={preNormY}
           width={PRENORM_W}
-          height={40}
+          height={46}
           label={preNorm.label}
           sub={preNorm.sub}
           active={preNormSelected}
           dimmed={preNormDimmed}
+          showDetails={false}
           onSelect={() => onSelect(preNorm.id)}
         />
       </g>

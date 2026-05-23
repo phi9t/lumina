@@ -8,8 +8,10 @@ interface ModuleNodeProps {
   label: string
   sub?: string
   micro?: string[]
+  badge?: string
   active: boolean
   dimmed?: boolean
+  showDetails?: boolean
   variant?: 'card' | 'pill'
   onSelect: () => void
 }
@@ -22,16 +24,25 @@ export function ModuleNode({
   label,
   sub,
   micro,
+  badge,
   active,
   dimmed = false,
+  showDetails = true,
   variant = 'card',
   onSelect,
 }: ModuleNodeProps) {
   const rx = variant === 'pill' ? height / 2 : 10
   const opacity = dimmed ? 0.45 : 1
-  const hasMicro = micro != null && micro.length > 0
-  const extraH = hasMicro ? 10 : 0
-  const rectH = height + extraH
+  const hasMicro = showDetails && micro != null && micro.length > 0
+  const hasBadge = showDetails && badge != null && badge.length > 0
+  const hasSub = showDetails && sub != null && sub.length > 0
+  const showMicro = hasMicro && !hasBadge
+  const stacked = showMicro || hasBadge
+  const rectH = height
+  const labelY = hasBadge ? y - 21 : stacked ? y - 23 : hasSub ? y - 9 : y
+  const subY = hasBadge ? y : stacked ? y - 4 : y + 14
+  const microY = y + 22
+  const badgeY = y + 25
 
   return (
     <motion.g
@@ -52,17 +63,17 @@ export function ModuleNode({
       />
       <text
         x={x}
-        y={hasMicro ? y - 12 : sub ? y - 6 : y}
+        y={labelY}
         textAnchor="middle"
         dominantBaseline="middle"
         className={`module-label${active ? ' module-label--active' : ''}`}
       >
         {label}
       </text>
-      {sub && (
+      {hasSub && (
         <text
           x={x}
-          y={hasMicro ? y + 2 : y + 10}
+          y={subY}
           textAnchor="middle"
           dominantBaseline="middle"
           className="module-sub"
@@ -70,9 +81,14 @@ export function ModuleNode({
           {sub}
         </text>
       )}
-      {hasMicro && (
-        <text x={x} y={y + 18} textAnchor="middle" className="step-micro-label">
+      {showMicro && (
+        <text x={x} y={microY} textAnchor="middle" className="step-micro-label">
           {micro.join(' · ')}
+        </text>
+      )}
+      {hasBadge && (
+        <text x={x} y={badgeY} textAnchor="middle" className="module-badge">
+          {badge}
         </text>
       )}
     </motion.g>
