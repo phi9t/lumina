@@ -18,7 +18,7 @@
   <g transform="translate(54 42)" filter="url(#shadow)">
     <path d="M44 10v116" stroke="#475569" stroke-width="8" stroke-linecap="round"/>
     <path d="M44 24h44v28h64" fill="none" stroke="#22d3ee" stroke-width="3" stroke-linejoin="miter"/>
-    <path d="M44 88h44v-28h64" fill="none" stroke="#e879f9" stroke-width="3" stroke-linejoin="miter"/>
+    <path d="M44 88h44v8h40" fill="none" stroke="#e879f9" stroke-width="3" stroke-linejoin="miter"/>
     <circle cx="44" cy="24" r="7" fill="#22d3ee"/>
     <circle cx="44" cy="88" r="7" fill="#e879f9"/>
     <circle cx="44" cy="126" r="16" fill="#0f172a" stroke="#ff007f" stroke-width="3"/>
