@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/lumina-logo.svg" alt="Lumina logo" width="680">
+  <img src="docs/assets/lumina-logo-clean.svg" alt="Lumina logo" width="680">
 </p>
 
 # Lumina
