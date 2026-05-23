@@ -1,12 +1,27 @@
 # RoPE Visualizer
 
-Interactive transformer-layer and rotary-position-embedding workbench built with React, Vite, TypeScript, and Tailwind CSS.
+Interactive transformer-layer and rotary-position-embedding workbench for exploring one pre-norm decoder layer.
 
-The app focuses on one pre-norm decoder layer:
+The app is built as a technical inspection surface rather than a landing page. It keeps the transformer block compact, puts detailed math in the center drawer, and preserves a persistent right-hand control dashboard for live layer/accounting changes.
 
-- Left: compact transformer block map for selection.
-- Center: module explanations, tensor paths, formulas, pseudocode, and RoPE workbench views.
-- Right: persistent layer controls, source-concept lenses, and live accounting readouts.
+## Current Experience
+
+- **Left:** compact SVG transformer block map with residual mainline, Attention branch, FFN/SwiGLU branch, and residual `+` merges.
+- **Center:** selected-module detail drawer with tensor path, source cue, formula, accounting metrics, and implementation-style pseudocode.
+- **RoPE drilldown:** Identity, Cache, and Spectrum views for interactively exploring rotary position behavior.
+- **Right:** transformer layer controls, source-concept lenses, KV cache estimates, and live compute/memory/shape readouts.
+- **Optional 3D:** a lazily loaded `3D reference` scene for RoPE, kept secondary to the 2D workbench.
+
+## Stack
+
+- React 19
+- Vite 8
+- TypeScript 6
+- Tailwind CSS 4
+- Framer Motion
+- Radix Slider
+- React Three Fiber / Drei / Three.js for the optional 3D reference
+- Vitest and ESLint for local verification
 
 ## Requirements
 
@@ -25,43 +40,77 @@ Open the URL printed by Vite, usually `http://localhost:5173`.
 ## Scripts
 
 ```bash
-npm run test       # Vitest unit tests
-npm run lint       # ESLint
-npm run typecheck  # TypeScript project build check
-npm run check      # test + lint + typecheck
-npm run build      # typecheck + production Vite build
-npm run preview    # serve the production build locally
+npm run test       # Run Vitest unit tests
+npm run lint       # Run ESLint
+npm run typecheck  # Run TypeScript project checks
+npm run check      # Run test + lint + typecheck
+npm run build      # Run typecheck + production Vite build
+npm run preview    # Serve the production build locally
 ```
 
-## Architecture
+## Project Structure
 
-- `src/TransformerBlockView.tsx` renders the compact SVG transformer block map.
-- `src/components/block/DetailDrawer.tsx` owns module detail explanations and routes the RoPE drilldown.
-- `src/components/rope/RopeWorkbench.tsx` provides the RoPE Identity, Cache, and Spectrum tabs.
-- `src/components/rope/RopeScene3D.tsx` contains the optional 3D reference scene and is lazy-loaded.
-- `src/RopeThreeJSVisualizer.tsx` contains the right-hand transformer layer dashboard.
-- `src/lib/layerModel.ts` derives layer accounting, lens copy, and KV cache estimates.
-- `src/lib/ropeMath.ts` contains pure RoPE math helpers covered by unit tests.
+```text
+src/
+  App.tsx                         # Three-column app layout and shared state
+  TransformerBlockView.tsx        # Compact SVG transformer block selector
+  RopeThreeJSVisualizer.tsx       # Right-hand layer dashboard and controls
+  components/block/               # SVG block primitives and detail drawer
+  components/rope/                # RoPE workbench, 2D views, lazy 3D scene
+  components/ui/                  # Small local UI primitives
+  lib/layerModel.ts               # Layer accounting, lenses, KV cache estimates
+  lib/ropeMath.ts                 # Pure RoPE math helpers
+  types/blockSelection.ts         # Shared selected-module types
+```
 
-## Production Notes
+Supporting docs:
 
-- The project builds to static assets in `dist/`.
-- The optional Three.js scene is code-split behind the `3D reference` disclosure.
-- Vite's chunk warning limit is set to account for that optional WebGL reference chunk; the primary app bundle remains separate.
-- CI runs `npm ci`, `npm run check`, and `npm run build` on pushes and pull requests to `main`.
-- Local agent/editor state is intentionally ignored by git.
+- `docs/design-principles.md` captures the product/design constraints.
+- `.workstreams/rope-workbench-legibility/` contains the completed workstream design and tracker.
+- `docs/superpowers/plans/2026-05-23-production-readiness.md` records the production-hardening plan.
 
-## Deployment
+## Architecture Notes
 
-Any static host that can serve Vite output works:
+- The left transformer block is intentionally a compact navigation map. It avoids inline formulas, tensor badges, and accounting text.
+- Detailed explanations live in `DetailDrawer`, backed by `layerModel`.
+- RoPE 2D workbench views are primary:
+  - `RopeIdentityView` shows absolute vs relative dot-product identity.
+  - `RopeCacheView` shows left-to-right KV cache behavior.
+  - `RopeSpectrumView` shows fast-to-slow RoPE frequency pairs.
+- `RopeScene3D` is code-split with `React.lazy` and only loads when the user opens `3D reference`.
+- `ropeTypes.ts` holds shared RoPE state types without importing Three.js.
+
+## Verification
+
+Before committing changes, run:
+
+```bash
+npm run check
+npm run build
+```
+
+CI runs the same checks on pushes and pull requests to `main` via `.github/workflows/ci.yml`.
+
+## Production Build
 
 ```bash
 npm ci
 npm run build
 ```
 
-Deploy the generated `dist/` directory.
+The static output is written to `dist/` and can be deployed to any static host.
 
-## Design Principles
+The primary app bundle is separated from the optional WebGL reference scene. Vite's chunk warning limit is set to allow the lazy Three.js chunk while keeping the main app path smaller.
 
-See [docs/design-principles.md](docs/design-principles.md).
+## Design Direction
+
+The UI should remain a strict industrial technical workbench:
+
+- Matte carbon/slate surfaces
+- Sharp borders and squared circuit wiring
+- FiraCode Nerd Font labels
+- Compact left-side navigation diagram
+- Center-first math/detail explanations
+- Right-side persistent controls
+
+See [docs/design-principles.md](docs/design-principles.md) for the full design contract.
