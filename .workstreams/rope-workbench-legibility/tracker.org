@@ -1,0 +1,114 @@
+#+TITLE: RoPE Workbench and Layer Legibility Tracker
+#+TODO: TODO NEXT IN-PROGRESS BLOCKED REVIEW DONE
+#+PROPERTY: Effort_ALL 0:15 0:30 1:00 2:00 4:00
+
+* Workstream Metadata
+:PROPERTIES:
+:SLUG: rope-workbench-legibility
+:DESIGN: design.md
+:STATUS: active
+:END:
+
+Goal: make transformer-layer source concepts easier to explore, fix LHS module text legibility, and replace the RoPE drilldown with Identity/Cache/Spectrum workbench views.
+
+* TODO Task 1: Establish RoPE math helpers and tests
+:PROPERTIES:
+:FILES: src/lib/ropeMath.ts src/lib/ropeMath.test.ts
+:VERIFY: npm test -- src/lib/ropeMath.test.ts
+:END:
+
+- Create pure helpers for rotate2D, dot2D, frequency schedule, selected pair values, phase gap, and wrap count.
+- Test relative identity equality: dot(rotate(q,iθ), rotate(k,jθ)) equals dot(q, rotate(k,(j-i)θ)).
+- Test base/head-dim effects on frequency schedule.
+- Test phase gap and wrap count with known values.
+
+* TODO Task 2: Refactor RoPE drilldown entry point
+:PROPERTIES:
+:FILES: src/components/block/DetailDrawer.tsx src/components/rope/RopeWorkbench.tsx
+:VERIFY: npm run build
+:END:
+
+- Add RopeWorkbench as the renderer for attention:rope.
+- Pass ropeState and layerModel into the workbench.
+- Keep the structured detail cards around RoPE accounting/source cue.
+- Preserve Esc close behavior and selection behavior.
+
+* TODO Task 3: Build Identity view
+:PROPERTIES:
+:FILES: src/components/rope/RopeIdentityView.tsx src/components/rope/RopeWorkbench.tsx src/index.css
+:VERIFY: npm test && npm run build
+:END:
+
+- Add Identity tab with absolute frame and relative frame panels.
+- Show vectors labeled R_i q, R_j k, q, and R_delta k.
+- Show equal score readouts and a visible equality bridge.
+- Add selected frequency-pair control and shared readout row.
+
+* TODO Task 4: Build Cache view
+:PROPERTIES:
+:FILES: src/components/rope/RopeCacheView.tsx src/components/rope/RopeWorkbench.tsx src/index.css
+:VERIFY: npm run build
+:END:
+
+- Add left-to-right K/V cache cells from earliest token to current token.
+- Highlight selected j and current i.
+- Draw attention fan from current query to visible cache slots.
+- Show live KV cache formula and byte result from layerModel.
+- Show decode vs prefill/training mode hint.
+
+* TODO Task 5: Build Spectrum view
+:PROPERTIES:
+:FILES: src/components/rope/RopeSpectrumView.tsx src/components/rope/RopeWorkbench.tsx src/index.css
+:VERIFY: npm run build
+:END:
+
+- Add fastest-to-slowest frequency pair strip.
+- Show theta_n, |delta|*theta_n, wrap/cycle progress, and compact glyph/bar per pair.
+- Highlight selected pair from Identity view.
+- Ensure base and headDim updates change the spectrum live.
+
+* TODO Task 6: Simplify or contain existing Three.js RoPE scene
+:PROPERTIES:
+:FILES: src/components/rope/RopeScene3D.tsx src/RopeThreeJSVisualizer.tsx src/components/rope/RopeWorkbench.tsx
+:VERIFY: npm run build
+:END:
+
+- Move 3D scene code out of RopeThreeJSVisualizer if retained.
+- Reduce overlapping floating labels.
+- Keep manual camera drag and remove decorative emphasis that competes with explanation.
+- Make 3D optional/supporting inside the workbench, not the primary explanation.
+
+* TODO Task 7: Improve LHS transformer layer text legibility
+:PROPERTIES:
+:FILES: src/TransformerBlockView.tsx src/components/block/BranchCircuit.tsx src/components/block/ModuleNode.tsx src/index.css
+:VERIFY: npm run build
+:END:
+
+- Increase module/card dimensions enough for larger text.
+- Raise SVG label sizes to the design targets.
+- Shorten SVG lens badge text for shapes, compute, memory, and parallelism.
+- Verify labels, subtitles, micro labels, and badges do not overlap.
+
+* TODO Task 8: Improve source concept discoverability in dashboard
+:PROPERTIES:
+:FILES: src/RopeThreeJSVisualizer.tsx src/lib/layerModel.ts src/index.css
+:VERIFY: npm test && npm run build
+:END:
+
+- Add concise reason-it-matters copy per lens.
+- Keep source concept chips compact.
+- Avoid long copied source text.
+- Ensure dashboard still functions as the right-hand control surface.
+
+* TODO Task 9: Browser verification and polish
+:PROPERTIES:
+:FILES: src/index.css affected UI components
+:VERIFY: npm test && npm run lint && npm run build
+:END:
+
+- Verify desktop default width: LHS labels readable.
+- Verify all lens badges avoid overlap.
+- Verify RoPE Identity equal scores are visible.
+- Verify Cache earliest-left/current-right, selected j, current i, and KV bytes.
+- Verify Spectrum changes with base/headDim.
+- Verify mobile stacking without text overflow.
