@@ -1,36 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="760" height="200" viewBox="0 0 760 200" role="img" aria-labelledby="title desc">
   <title id="title">Lumina logo</title>
-  <desc id="desc">Simple residual circuit mark and wordmark for Lumina, a transformer layer explorer.</desc>
+  <desc id="desc">Minimal residual-stream mark and wordmark for Lumina, a transformer layer explorer.</desc>
   <defs>
-    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#22d3ee"/>
-      <stop offset="1" stop-color="#38bdf8"/>
-    </linearGradient>
-    <linearGradient id="magenta" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f472b6"/>
-      <stop offset="1" stop-color="#e879f9"/>
+    <linearGradient id="plateFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101826"/>
+      <stop offset="1" stop-color="#0b111c"/>
     </linearGradient>
   </defs>
 
   <rect width="760" height="200" rx="18" fill="#080a10"/>
   <rect x="0.5" y="0.5" width="759" height="199" rx="17.5" fill="none" stroke="#1f2937"/>
 
-  <g transform="translate(92 46)">
-    <path d="M32 0v108" stroke="#475569" stroke-width="7" stroke-linecap="round"/>
-    <circle cx="32" cy="24" r="7" fill="#22d3ee"/>
-    <circle cx="32" cy="72" r="7" fill="#e879f9"/>
+  <g transform="translate(94 26)">
+    <path d="M36 10v124" stroke="#475569" stroke-width="7" stroke-linecap="round"/>
 
-    <path d="M32 24H94V50H132" fill="none" stroke="url(#cyan)" stroke-width="4" stroke-linejoin="round"/>
-    <path d="M32 72H94V110H132" fill="none" stroke="url(#magenta)" stroke-width="4" stroke-linejoin="round"/>
+    <rect x="138" y="22" width="132" height="52" rx="9" fill="url(#plateFill)" stroke="#38bdf8" stroke-width="3"/>
+    <rect x="138" y="80" width="132" height="52" rx="9" fill="url(#plateFill)" stroke="#e879f9" stroke-width="3"/>
 
-    <rect x="132" y="24" width="118" height="52" rx="8" fill="#0d1420" stroke="#38bdf8" stroke-width="3"/>
-    <rect x="132" y="84" width="118" height="52" rx="8" fill="#0d1420" stroke="#e879f9" stroke-width="3"/>
+    <path d="M36 48H138" stroke="#22d3ee" stroke-width="5" stroke-linecap="round"/>
+    <path d="M36 106H138" stroke="#e879f9" stroke-width="5" stroke-linecap="round"/>
 
-    <circle cx="32" cy="136" r="16" fill="#0d1420" stroke="#ff007f" stroke-width="4"/>
-    <path d="M23 136h18M32 127v18" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="36" cy="48" r="8" fill="#22d3ee"/>
+    <circle cx="36" cy="106" r="8" fill="#e879f9"/>
+
+    <circle cx="36" cy="148" r="19" fill="#0d1420" stroke="#ff007f" stroke-width="4"/>
+    <path d="M25 148h22M36 137v22" stroke="#f8fafc" stroke-width="3.5" stroke-linecap="round"/>
   </g>
 
-  <g transform="translate(392 58)">
+  <g transform="translate(398 58)">
     <text x="0" y="58" fill="#f8fafc" font-family="'Fira Code', 'FiraCode Nerd Font', ui-monospace, monospace" font-size="64" font-weight="700">Lumina</text>
     <text x="4" y="98" fill="#94a3b8" font-family="'Fira Code', 'FiraCode Nerd Font', ui-monospace, monospace" font-size="16" letter-spacing="2.8">TRANSFORMER LAYER EXPLORER</text>
   </g>
