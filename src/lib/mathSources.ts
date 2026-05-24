@@ -1,5 +1,5 @@
 export const MATH_NOTES_URL =
-  'https://github.com/phi9t/rope-visualizer/blob/main/docs/transformer-math-notes.md'
+  'https://github.com/phi9t/lumina/blob/main/docs/transformer-math-notes.md'
 
 export const TRANSFORMER_MATH_SOURCE_URLS = {
   jaxTransformers: 'https://jax-ml.github.io/scaling-book/transformers/',
