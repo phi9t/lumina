@@ -18,21 +18,34 @@ describe('deriveLayerModel', () => {
 
   test('distinguishes forward FLOPs from training FLOPs', () => {
     const model = deriveLayerModel(DEFAULT_LAYER_CONFIG)
+    const modules = Object.values(model.modules)
+    const expectedForwardFlops = modules.reduce(
+      (total, module) => total + module.forwardFlops,
+      0,
+    )
+    const expectedTrainingFlops = modules.reduce(
+      (total, module) => total + module.trainingFlops,
+      0,
+    )
 
     expect(model.modules.qkv.forwardFlops).toBe(206_158_430_208)
     expect(model.modules.qkv.trainingFlops).toBe(618_475_290_624)
     expect(model.modules.qkv.flops).toBe(model.modules.qkv.forwardFlops)
+    expect(model.totals.forwardFlops).toBe(expectedForwardFlops)
+    expect(model.totals.trainingFlops).toBe(expectedTrainingFlops)
     expect(model.totals.forwardFlops).toBe(model.totals.flops)
-    expect(model.totals.trainingFlops).toBeGreaterThan(model.totals.forwardFlops)
   })
 
   test('shows attention dot-product compute growing faster than FFN compute as context grows', () => {
     const shortContext = deriveLayerModel({ ...DEFAULT_LAYER_CONFIG, seqLen: 128 })
     const longContext = deriveLayerModel({ ...DEFAULT_LAYER_CONFIG, seqLen: 32768 })
+    const expectedAttentionDotRatio = (32768 / 128) ** 2
 
     expect(shortContext.totals.attentionToFfnRatio).toBeLessThan(1)
     expect(longContext.totals.attentionToFfnRatio).toBeGreaterThan(1)
-    expect(longContext.totals.attentionDotFlops).toBeGreaterThan(shortContext.totals.attentionDotFlops * 1000)
+    expect(longContext.totals.attentionDotFlops / shortContext.totals.attentionDotFlops).toBe(
+      expectedAttentionDotRatio,
+    )
   })
 
   test('scales KV cache memory across batch size', () => {
