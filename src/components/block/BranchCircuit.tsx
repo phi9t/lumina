@@ -11,7 +11,6 @@ interface BranchCircuitProps {
   branch: BranchDef
   branchKind: 'attention' | 'ffn'
   title: string
-  formula: string
   selectedSub: string | null
   onSelect: (sub: string) => void
 }
@@ -25,6 +24,7 @@ const HEADER_H = 54
 const CARD_W = 164
 const CARD_H = 42
 const SHELL_PAD_BOTTOM = 12
+const MIN_STEP_GAP = 44
 const MAX_STEP_GAP = 66
 
 export function BranchCircuit({
@@ -34,7 +34,6 @@ export function BranchCircuit({
   branch,
   branchKind,
   title,
-  formula,
   selectedSub,
   onSelect,
 }: BranchCircuitProps) {
@@ -46,10 +45,16 @@ export function BranchCircuit({
   const span = junctionY - teeY
   const shellTop = teeY + Math.min(46, span * 0.2)
   const innerH = span - (shellTop - teeY) - SHELL_PAD_BOTTOM - 14
-  const stepGap =
-    steps.length > 1
-      ? Math.min(MAX_STEP_GAP, (innerH - HEADER_H - CARD_H) / (steps.length - 1))
-      : MAX_STEP_GAP
+  const rawStepGap = steps.length > 1 ? (innerH - HEADER_H - CARD_H) / (steps.length - 1) : MAX_STEP_GAP
+  const stepGap = Math.max(MIN_STEP_GAP, Math.min(MAX_STEP_GAP, rawStepGap))
+
+  if (import.meta.env.DEV && rawStepGap < MIN_STEP_GAP) {
+    console.warn(
+      `[BranchCircuit:${branchKind}] step span too tight; expected at least ${
+        HEADER_H + CARD_H + (steps.length - 1) * MIN_STEP_GAP
+      }px between teeY and junctionY, got ${junctionY - teeY}px.`,
+    )
+  }
   const chainTop = shellTop + HEADER_H
   const chainBottom = chainTop + Math.max(0, steps.length - 1) * stepGap
   const shellBottom = Math.min(junctionY - 10, chainBottom + CARD_H / 2 + SHELL_PAD_BOTTOM)
@@ -69,7 +74,7 @@ export function BranchCircuit({
 
   return (
     <g className={`branch-circuit branch-circuit--${branchKind}`}>
-      <defs>
+      <defs aria-hidden="true">
         <marker
           id={arrowId}
           markerWidth="8"
@@ -89,9 +94,17 @@ export function BranchCircuit({
         height={bottom - top - 6}
         className="branch-corridor"
         rx={8}
+        aria-hidden="true"
       />
 
-      <line x1={spineX} y1={teeY} x2={spineX} y2={junctionY} className="branch-spine-rail" />
+      <line
+        x1={spineX}
+        y1={teeY}
+        x2={spineX}
+        y2={junctionY}
+        className="branch-spine-rail"
+        aria-hidden="true"
+      />
 
       <rect
         x={shellLeft}
@@ -100,22 +113,15 @@ export function BranchCircuit({
         height={shellBottom - shellTop}
         className="module-shell"
         rx={8}
+        aria-hidden="true"
       />
       <text x={shellCenterX} y={shellTop + 22} textAnchor="middle" className="module-shell-title">
         {title}
       </text>
-      {formula && (
-        <text x={shellCenterX} y={shellTop + 50} textAnchor="middle" className="module-shell-formula">
-          {formula}
-        </text>
-      )}
 
-      <path d={entryPath} className="branch-wire-halo" fill="none" />
-      <path d={entryPath} className="branch-wire" fill="none" />
-      <path d={toShellPath} className="branch-wire-halo" fill="none" />
-      <path d={toShellPath} className="branch-wire" fill="none" />
-      <path d={returnPath} className="branch-wire-halo" fill="none" />
-      <path d={returnPath} className="branch-wire" fill="none" />
+      <path d={entryPath} className="branch-wire" fill="none" aria-hidden="true" />
+      <path d={toShellPath} className="branch-wire" fill="none" aria-hidden="true" />
+      <path d={returnPath} className="branch-wire" fill="none" aria-hidden="true" />
 
       <line
         x1={spineX}
@@ -123,13 +129,14 @@ export function BranchCircuit({
         x2={preNormX - PRENORM_W / 2}
         y2={preNormY}
         className="branch-tap"
+        aria-hidden="true"
       />
 
-      <circle cx={mainlineX} cy={teeY} r={4} className="branch-tee" />
-      <rect x={spineX - 3} y={teeY - 3} width={6} height={6} className="branch-corner" />
-      <rect x={spineX - 3} y={junctionY - 3} width={6} height={6} className="branch-corner" />
-      <rect x={shellCenterX - 3} y={shellTop - 3} width={6} height={6} className="branch-corner" />
-      <rect x={shellCenterX - 3} y={shellBottom - 3} width={6} height={6} className="branch-corner" />
+      <circle cx={mainlineX} cy={teeY} r={4} className="branch-tee" aria-hidden="true" />
+      <rect x={spineX - 3} y={teeY - 3} width={6} height={6} className="branch-corner" aria-hidden="true" />
+      <rect x={spineX - 3} y={junctionY - 3} width={6} height={6} className="branch-corner" aria-hidden="true" />
+      <rect x={shellCenterX - 3} y={shellTop - 3} width={6} height={6} className="branch-corner" aria-hidden="true" />
+      <rect x={shellCenterX - 3} y={shellBottom - 3} width={6} height={6} className="branch-corner" aria-hidden="true" />
 
       <VerticalStepChain
         centerX={shellCenterX}

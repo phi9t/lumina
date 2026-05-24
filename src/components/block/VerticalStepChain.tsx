@@ -6,7 +6,6 @@ interface VerticalStepChainProps {
   topY: number
   bottomY: number
   steps: CircuitModuleDef[]
-  getBadge?: (id: string) => string | undefined
   cardW?: number
   cardH?: number
   selectedSub: string | null
@@ -25,7 +24,6 @@ export function VerticalStepChain({
   topY,
   bottomY,
   steps,
-  getBadge,
   cardW = 120,
   cardH = 44,
   selectedSub,
@@ -37,7 +35,7 @@ export function VerticalStepChain({
 
   return (
     <g className="step-chain">
-      <line x1={busX} y1={topY} x2={busX} y2={bottomY} className="step-chain-bus" />
+      <line x1={busX} y1={topY} x2={busX} y2={bottomY} className="step-chain-bus" aria-hidden="true" />
 
       {ys.map((y, i) => {
         const m = steps[i]
@@ -47,7 +45,7 @@ export function VerticalStepChain({
 
         return (
           <g key={m.id}>
-            <line x1={busX} y1={y} x2={tapX} y2={y} className="step-chain-tap" />
+            <line x1={busX} y1={y} x2={tapX} y2={y} className="step-chain-tap" aria-hidden="true" />
             {i < steps.length - 1 && nextY != null && (
               <line
                 x1={busX}
@@ -56,10 +54,11 @@ export function VerticalStepChain({
                 y2={nextY - cardH / 2 - 4}
                 className="step-chain-segment"
                 markerEnd={`url(#${arrowMarkerId})`}
+                aria-hidden="true"
               />
             )}
             {i > 0 && (
-              <rect x={busX - 3} y={y - 3} width={6} height={6} className="branch-corner" />
+              <rect x={busX - 3} y={y - 3} width={6} height={6} className="branch-corner" aria-hidden="true" />
             )}
             <ModuleNode
               x={centerX}
@@ -69,7 +68,6 @@ export function VerticalStepChain({
               label={m.label}
               sub={m.sub}
               micro={m.micro}
-              badge={getBadge?.(m.id)}
               active={selectedSub === m.id}
               dimmed={selectedSub != null && selectedSub !== m.id}
               showDetails={false}

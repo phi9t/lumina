@@ -1,23 +1,7 @@
-interface MainlineRailProps {
-  x1: number
-  x2: number
-  y: number
-  gradientId?: string
-}
-
 interface MainlineRailVerticalProps {
   x: number
   y1: number
   y2: number
-  gradientId?: string
-}
-
-export function MainlineRail({ x1, x2, y }: MainlineRailProps) {
-  return (
-    <g>
-      <line x1={x1} y1={y} x2={x2} y2={y} stroke="rgba(100, 116, 139, 0.45)" className="mainline-rail" />
-    </g>
-  )
 }
 
 export function MainlineRailVertical({

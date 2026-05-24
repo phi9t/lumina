@@ -1,13 +1,11 @@
 import { useMemo } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Line, OrbitControls, Text } from '@react-three/drei'
-import { cycleProgress, ropeFrequencies, selectedPairValues, type Vec2 } from '@/lib/ropeMath'
+import { K_DEMO_BASE, Q_DEMO_BASE, cycleProgress, ropeFrequencies, selectedPairValues, type Vec2 } from '@/lib/ropeMath'
 import type { RopeStateProps } from './ropeTypes'
 
 type Vec3 = [number, number, number]
 
-const Q_BASE: Vec2 = [0.9, 0.35]
-const K_BASE: Vec2 = [0.55, 0.85]
 const QUERY = '#38bdf8'
 const KEY = '#fb7185'
 const RELATIVE = '#a78bfa'
@@ -81,8 +79,8 @@ function PairDisk({
     posJ,
     headDim,
     base,
-    qBase: Q_BASE,
-    kBase: K_BASE,
+    qBase: Q_DEMO_BASE,
+    kBase: K_DEMO_BASE,
   })
   const progress = cycleProgress(values.delta, values.theta)
 

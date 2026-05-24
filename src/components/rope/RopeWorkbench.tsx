@@ -4,7 +4,7 @@ import { RopeIdentityView } from '@/components/rope/RopeIdentityView'
 import { RopeSpectrumView } from '@/components/rope/RopeSpectrumView'
 import type { LayerModel } from '@/lib/layerModel'
 import { formatBytes } from '@/lib/layerModel'
-import { selectedPairValues, type Vec2 } from '@/lib/ropeMath'
+import { K_DEMO_BASE, Q_DEMO_BASE, selectedPairValues } from '@/lib/ropeMath'
 import type { RopeStateProps } from './ropeTypes'
 
 type RopeWorkbenchTab = 'identity' | 'cache' | 'spectrum'
@@ -22,9 +22,6 @@ const TABS: Array<{ id: RopeWorkbenchTab; label: string }> = [
 const RopeDetailPanel = lazy(() =>
   import('@/components/rope/RopeScene3D').then((module) => ({ default: module.RopeDetailPanel })),
 )
-const Q_BASE: Vec2 = [0.9, 0.35]
-const K_BASE: Vec2 = [0.55, 0.85]
-
 export function RopeWorkbench({ ropeState, layerModel }: RopeWorkbenchProps) {
   const [activeTab, setActiveTab] = useState<RopeWorkbenchTab>('identity')
   const [selectedPair, setSelectedPair] = useState(0)
@@ -39,8 +36,8 @@ export function RopeWorkbench({ ropeState, layerModel }: RopeWorkbenchProps) {
         posJ: ropeState.posJ,
         headDim: ropeState.headDim,
         base: ropeState.base,
-        qBase: Q_BASE,
-        kBase: K_BASE,
+        qBase: Q_DEMO_BASE,
+        kBase: K_DEMO_BASE,
       }),
     [pairIndex, ropeState.base, ropeState.headDim, ropeState.posI, ropeState.posJ],
   )
@@ -80,7 +77,7 @@ export function RopeWorkbench({ ropeState, layerModel }: RopeWorkbenchProps) {
 
       <div className="rope-workbench__placeholder">
         {activeTab === 'identity' && (
-          <RopeIdentityView values={pair} qBase={Q_BASE} />
+          <RopeIdentityView values={pair} qBase={Q_DEMO_BASE} />
         )}
         {activeTab === 'cache' && (
           <RopeCacheView ropeState={ropeState} layerModel={layerModel} />

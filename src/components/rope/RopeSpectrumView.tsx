@@ -1,5 +1,5 @@
 import type { RopeStateProps } from './ropeTypes'
-import { cycleProgress, phaseGap, ropeFrequencies, wrapCount } from '@/lib/ropeMath'
+import { cycleProgress, phaseGap, relativeDelta, ropeFrequencies, wrapCount } from '@/lib/ropeMath'
 
 interface RopeSpectrumViewProps {
   ropeState: RopeStateProps
@@ -8,7 +8,7 @@ interface RopeSpectrumViewProps {
 }
 
 export function RopeSpectrumView({ ropeState, selectedPair, onSelectPair }: RopeSpectrumViewProps) {
-  const delta = ropeState.posJ - ropeState.posI
+  const delta = relativeDelta(ropeState.posI, ropeState.posJ)
   const pairs = ropeFrequencies({ headDim: ropeState.headDim, base: ropeState.base })
   const maxGap = Math.max(...pairs.map((pair) => phaseGap(delta, pair.theta)), 1)
 

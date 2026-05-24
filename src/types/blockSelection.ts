@@ -11,11 +11,3 @@ export type SelectedModule =
 export function selectionKey(sel: NonNullable<SelectedModule>): string {
   return `${sel.branch}:${sel.submodule}`
 }
-
-export function isSelected(
-  sel: SelectedModule,
-  branch: NonNullable<SelectedModule>['branch'],
-  submodule: string,
-): boolean {
-  return sel != null && sel.branch === branch && sel.submodule === submodule
-}

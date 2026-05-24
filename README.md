@@ -71,7 +71,7 @@ npm run preview    # Serve the production build locally
 src/
   App.tsx                         # Three-column app layout and shared state
   TransformerBlockView.tsx        # Compact SVG transformer block selector
-  RopeThreeJSVisualizer.tsx       # Right-hand layer dashboard and controls
+  components/dashboard/           # Right-hand layer dashboard and controls
   components/block/               # SVG block primitives and detail drawer
   components/rope/                # RoPE workbench, 2D views, lazy 3D scene
   components/ui/                  # Small local UI primitives

@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import type { LayerConfig, LayerModel, Lens } from '@/lib/layerModel'
 import { LENS_EXPLANATIONS, formatBytes, formatCount } from '@/lib/layerModel'
 import type { RopeStateProps } from '@/components/rope/ropeTypes'
+import { relativeDelta } from '@/lib/ropeMath'
 
 export type { RopeStateProps } from '@/components/rope/ropeTypes'
 
@@ -45,7 +46,7 @@ function ControlRow({
   )
 }
 
-export interface RopeDashboardProps extends RopeStateProps {
+export interface LayerDashboardProps extends RopeStateProps {
   setPosI: (v: number) => void
   setPosJ: (v: number) => void
   setBase: (v: number) => void
@@ -114,7 +115,7 @@ function OptionToggle<T extends string | number>({
   )
 }
 
-export function RopeDashboard({
+export function LayerDashboard({
   posI,
   posJ,
   headDim,
@@ -127,9 +128,10 @@ export function RopeDashboard({
   layerConfig,
   setLayerConfig,
   layerModel,
-}: RopeDashboardProps) {
+}: LayerDashboardProps) {
   const effectiveJ = Math.min(posJ, posI)
-  const delta = effectiveJ - posI
+  const delta = relativeDelta(posI, posJ)
+  // theta decreases with pair index; the largest pair index is the slowest rotation.
   const slowestTheta = 1 / Math.pow(base, (2 * Math.max(0, Math.floor(headDim / 2) - 1)) / headDim)
   const relativePhase = Math.abs(delta) * slowestTheta
   const setConfig = (patch: Partial<LayerConfig>) => {

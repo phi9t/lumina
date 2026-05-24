@@ -1,0 +1,115 @@
+#+TITLE: Post-readiness Correctness, Accessibility, and Cleanup Tracker
+#+TODO: TODO NEXT IN-PROGRESS BLOCKED REVIEW DONE
+#+PROPERTY: Effort_ALL 0:15 0:30 1:00 2:00 4:00
+
+* Workstream Metadata
+:PROPERTIES:
+:SLUG: post-readiness-correctness-a11y
+:DESIGN: design.md
+:SOURCE_RFC: docs/rfcs/0001-post-readiness-correctness-and-a11y.md
+:STATUS: archived
+:END:
+
+Goal: execute RFC 0001 by closing known correctness, accessibility, and cleanup gaps without changing the product's visual direction.
+
+* DONE Task 0: Convert RFC 0001 into a tracked workstream
+:PROPERTIES:
+:RFC: P1-P10
+:FILES: docs/rfcs/0001-post-readiness-correctness-and-a11y.md .workstreams/post-readiness-correctness-a11y/design.md .workstreams/post-readiness-correctness-a11y/tracker.org .agents/skills/workstream-executor/SKILL.md
+:VERIFY: test -f docs/rfcs/0001-post-readiness-correctness-and-a11y.md && test -f .workstreams/post-readiness-correctness-a11y/design.md && test -f .workstreams/post-readiness-correctness-a11y/tracker.org
+:END:
+
+- Preserve the RFC as the source document.
+- Create design and tracker artifacts under `.workstreams/post-readiness-correctness-a11y/`.
+- Resolve open decisions into executable tracker tasks.
+- Update the repo-local workstream executor skill so future agents can consume RFC-derived workstreams.
+
+* DONE Task 1: Clarify slowest RoPE pair convention
+:PROPERTIES:
+:RFC: P1
+:FILES: src/RopeThreeJSVisualizer.tsx src/lib/ropeMath.ts src/lib/ropeMath.test.ts
+:VERIFY: npm test -- src/lib/ropeMath.test.ts && npm run typecheck
+:END:
+
+- Add a concise comment documenting that theta decreases with pair index and the largest pair index is the slowest rotation.
+- If `relativeDelta` already exists by the time this task runs, use it; otherwise keep this task comment-only and leave helper extraction to Task 7.
+
+* DONE Task 2: Restore keyboard accessibility on the SVG block
+:PROPERTIES:
+:RFC: P2
+:FILES: src/TransformerBlockView.tsx src/components/block/ModuleNode.tsx src/components/block/JunctionNode.tsx src/index.css
+:VERIFY: npm run check && npm run build
+:END:
+
+- Do not hide interactive SVG descendants behind `role="img"`.
+- Make selectable modules and junctions reachable by keyboard.
+- Enter and Space should select/open the same target as click.
+- Add accessible button labels and visible focus treatment.
+- Mark decorative-only SVG groups as hidden where appropriate.
+
+* DONE Task 3: Clamp branch step gap
+:PROPERTIES:
+:RFC: P3
+:FILES: src/components/block/BranchCircuit.tsx
+:VERIFY: npm run check && npm run build
+:END:
+
+- Clamp branch step spacing between a positive minimum and the current maximum.
+- Emit a dev-only warning when a branch span is too tight for the minimum spacing.
+- Preserve current default layout behavior.
+
+* DONE Task 4: Cut unused badge plumbing and prune dead surfaces
+:PROPERTIES:
+:RFC: P4 P5
+:FILES: src/TransformerBlockView.tsx src/components/block/BranchCircuit.tsx src/components/block/JunctionNode.tsx src/components/block/MainlineRail.tsx src/components/block/ModuleNode.tsx src/components/block/VerticalStepChain.tsx src/components/block/DetailDrawer.tsx src/lib/layerModel.ts src/types/blockSelection.ts src/index.css
+:VERIFY: npm run check && npm run build
+:END:
+
+- Remove unused `badge` / `getBadge` APIs and CSS.
+- Remove dead halos, unused rail props/exports, identity wrappers, unused helpers, and formula props identified by RFC 0001.
+- Keep the left SVG compact and free of shape, compute, memory, formula, and pseudocode badges.
+
+* DONE Task 5: Rename dashboard module
+:PROPERTIES:
+:RFC: P6
+:FILES: src/RopeThreeJSVisualizer.tsx src/components/dashboard/LayerDashboard.tsx src/App.tsx
+:VERIFY: npm run check && npm run build
+:END:
+
+- Move the dashboard implementation to `src/components/dashboard/LayerDashboard.tsx`.
+- Rename the exported component to `LayerDashboard`.
+- Update imports and leave no misleading Three.js dashboard filename behind.
+
+* DONE Task 6: Centralize demo Q/K base vectors
+:PROPERTIES:
+:RFC: P7
+:FILES: src/lib/ropeMath.ts src/components/rope/RopeWorkbench.tsx src/components/rope/RopeScene3D.tsx
+:VERIFY: npm test -- src/lib/ropeMath.test.ts && npm run typecheck
+:END:
+
+- Export shared runtime demo vectors from `ropeMath.ts`.
+- Import them from runtime RoPE components.
+- Keep tests hermetic unless importing the constants makes the assertion clearer.
+
+* DONE Task 7: Consolidate effective position delta handling
+:PROPERTIES:
+:RFC: P8 P9
+:FILES: src/App.tsx src/lib/ropeMath.ts src/components/dashboard/LayerDashboard.tsx src/components/rope/RopeWorkbench.tsx src/components/rope/RopeSpectrumView.tsx src/lib/ropeMath.test.ts
+:VERIFY: npm test -- src/lib/ropeMath.test.ts && npm run check
+:END:
+
+- Drop write-side `setPosJClamped` and rely on read-side `effectiveJ`.
+- Add `relativeDelta(posI, posJ)` to encode the clamped relative-position invariant.
+- Use the helper in dashboard and RoPE workbench/spectrum derivations.
+- Add or update unit coverage for the clamped delta behavior.
+
+* DONE Task 8: Add left-SVG design-invariant smoke test
+:PROPERTIES:
+:RFC: P10
+:FILES: src/TransformerBlockView.test.tsx
+:VERIFY: npm run check && npm run build
+:END:
+
+- Add the smallest React test setup needed for a smoke test; avoid new dependencies if server rendering is enough.
+- Assert the left SVG does not render formulas, FLOP counts, byte counts, or detailed math copy.
+- Keep the test focused on the design invariant, not full component behavior.

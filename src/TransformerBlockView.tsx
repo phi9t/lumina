@@ -53,10 +53,10 @@ export function TransformerBlockView({ selected, onSelect }: TransformerBlockVie
       <svg
         viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
         className="block-view-svg"
-        role="img"
+        role="group"
         aria-label="Transformer block with vertical residual mainline, pre-norm on branch spine, and vertical action sequences inside module shells"
       >
-        <g className={`block-view${hasSelection ? ' block-view--focused' : ''}`}>
+        <g className="block-view">
           <text x={MAINLINE_X + 165} y={28} textAnchor="middle" className="block-title">
             Transformer block · residual mainline ↓
           </text>
@@ -67,7 +67,6 @@ export function TransformerBlockView({ selected, onSelect }: TransformerBlockVie
           <BranchCircuit
             branchKind="attention"
             title="Attention"
-            formula=""
             mainlineX={MAINLINE_X}
             teeY={Y_ATTN_TEE}
             junctionY={Y_J1}
@@ -78,7 +77,6 @@ export function TransformerBlockView({ selected, onSelect }: TransformerBlockVie
           <BranchCircuit
             branchKind="ffn"
             title="FFN / SwiGLU"
-            formula=""
             mainlineX={MAINLINE_X}
             teeY={Y_FFN_TEE}
             junctionY={Y_J2}

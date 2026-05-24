@@ -48,16 +48,12 @@
   --module-label-active: #ffffff;
   --module-sub: rgba(148, 163, 184, 0.8);
   --branch-stroke: rgba(100, 116, 139, 0.6);
-  --branch-stroke-halo: transparent;
   --branch-tee: #00f0ff;
   --branch-title: rgba(241, 245, 249, 0.9);
-  --branch-formula: rgba(148, 163, 184, 0.8);
   --junction-ring: #ff007f;
   --junction-ring-active: #ffb000;
-  --junction-halo: transparent;
   --junction-cross: #f1f5f9;
   --junction-label: #ff007f;
-  --mainline-glow: transparent;
   --mainline-caption: rgba(148, 163, 184, 0.8);
 }
 
@@ -82,8 +78,6 @@ body {
 .block-view-svg text,
 .module-label,
 .module-sub,
-.branch-title,
-.branch-formula,
 .junction-label,
 .mainline-caption {
   font-family: var(--font-nerd);
@@ -175,10 +169,6 @@ body {
   fill: none;
 }
 
-.mainline-glow {
-  display: none;
-}
-
 .mainline-tick {
   fill: rgba(255, 255, 255, 0.5);
 }
@@ -202,14 +192,6 @@ body {
   stroke-linecap: square;
   stroke-linejoin: miter;
   fill: none;
-}
-
-.branch-wire-halo {
-  display: none;
-}
-
-.branch-circuit--ffn .branch-wire-halo {
-  stroke: rgba(244, 114, 182, 0.1);
 }
 
 .branch-spine-rail {
@@ -254,19 +236,6 @@ body {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   fill: var(--branch-title);
-}
-
-.module-shell-formula {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  fill: var(--branch-formula);
-}
-
-.prenorm-connector {
-  stroke: rgba(148, 163, 184, 0.35);
-  stroke-width: 1.5;
-  stroke-dasharray: 4 4;
-  fill: none;
 }
 
 .prenorm-plate .module-rect {
@@ -343,22 +312,6 @@ body {
   fill: var(--branch-tee);
 }
 
-.branch-title {
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  fill: var(--branch-title);
-}
-
-.branch-formula {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.02em;
-  fill: var(--branch-formula);
-}
-
 .module-rect {
   fill: var(--module-fill);
   stroke: var(--module-stroke);
@@ -370,6 +323,16 @@ body {
   fill: var(--module-fill-active);
   stroke: var(--module-stroke-active);
   stroke-width: 1.5;
+}
+
+.module-node:focus {
+  outline: none;
+}
+
+.module-node:focus-visible .module-rect {
+  stroke: var(--module-stroke-active);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.35));
 }
 
 .module-label {
@@ -390,13 +353,6 @@ body {
   fill: var(--module-sub);
 }
 
-.module-badge {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.02em;
-  fill: rgba(165, 243, 252, 0.85);
-}
-
 .junction-ring {
   fill: rgba(15, 23, 42, 0.85);
   stroke: var(--junction-ring);
@@ -409,8 +365,14 @@ body {
   stroke-width: 2.5;
 }
 
-.junction-halo {
-  fill: var(--junction-halo);
+.junction-node:focus {
+  outline: none;
+}
+
+.junction-node:focus-visible .junction-ring {
+  stroke: var(--module-stroke-active);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.35));
 }
 
 .junction-cross {
@@ -424,13 +386,6 @@ body {
   font-size: 9px;
   letter-spacing: 0.06em;
   fill: var(--junction-label);
-}
-
-.junction-badge {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.02em;
-  fill: rgba(165, 243, 252, 0.82);
 }
 
 .block-view-hint {

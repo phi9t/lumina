@@ -1,5 +1,8 @@
 export type Vec2 = [number, number]
 
+export const Q_DEMO_BASE: Vec2 = [0.9, 0.35]
+export const K_DEMO_BASE: Vec2 = [0.55, 0.85]
+
 export interface RopePair {
   index: number
   theta: number
@@ -88,6 +91,10 @@ export function cycleProgress(delta: number, theta: number): number {
   return wrapCount(delta, theta) % 1
 }
 
+export function relativeDelta(posI: number, posJ: number): number {
+  return Math.min(posJ, posI) - posI
+}
+
 export function relativeIdentity({
   q,
   k,
@@ -95,9 +102,10 @@ export function relativeIdentity({
   posJ,
   theta,
 }: RelativeIdentityInput): RelativeIdentityValues {
-  const delta = posJ - posI
+  const effectiveJ = Math.min(posJ, posI)
+  const delta = relativeDelta(posI, posJ)
   const qAbsolute = rotate2D(q, posI * theta)
-  const kAbsolute = rotate2D(k, posJ * theta)
+  const kAbsolute = rotate2D(k, effectiveJ * theta)
   const kRelative = rotate2D(k, delta * theta)
 
   return {
@@ -109,7 +117,7 @@ export function relativeIdentity({
     absoluteScore: dot2D(qAbsolute, kAbsolute),
     relativeScore: dot2D(q, kRelative),
     iAngle: posI * theta,
-    jAngle: posJ * theta,
+    jAngle: effectiveJ * theta,
     deltaAngle: delta * theta,
   }
 }

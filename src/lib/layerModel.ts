@@ -83,10 +83,6 @@ function activationBytes(config: LayerConfig, width: number) {
   return config.batch * config.seqLen * width * config.precisionBytes
 }
 
-function moduleAccounting(accounting: ModuleAccounting): ModuleAccounting {
-  return accounting
-}
-
 export function formatCount(value: number): string {
   if (value >= 1e12) return `${(value / 1e12).toFixed(2)}T`
   if (value >= 1e9) return `${(value / 1e9).toFixed(2)}B`
@@ -130,7 +126,7 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
     2 * config.seqLen * config.layers * config.numKvHeads * config.headDim * config.precisionBytes
 
   const modules = {
-    attentionLn: moduleAccounting({
+    attentionLn: {
       id: 'attention:ln',
       inputShape: 'B,T,D',
       outputShape: 'B,T,D',
@@ -140,8 +136,8 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       summary: 'Pre-normalizes the residual stream before attention reads it.',
       sourceCue: 'pre-norm residual block',
       parallelism: ['SP'],
-    }),
-    qkv: moduleAccounting({
+    },
+    qkv: {
       id: 'attention:qkv',
       inputShape: 'B,T,D',
       outputShape: 'Q: B,T,N,H · K,V: B,T,K,H',
@@ -151,8 +147,8 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       summary: 'Projects residual features into query heads and grouped key/value heads.',
       sourceCue: 'MHA/GQA/MQA projections',
       parallelism: ['TP'],
-    }),
-    rope: moduleAccounting({
+    },
+    rope: {
       id: 'attention:rope',
       inputShape: 'Q: B,T,N,H · K: B,T,K,H',
       outputShape: 'rotated Q,K with unchanged shape',
@@ -162,8 +158,8 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       summary: 'Applies position-dependent rotations to 2D pairs inside Q and K.',
       sourceCue: 'relative position through rotary embeddings',
       parallelism: ['SP'],
-    }),
-    attention: moduleAccounting({
+    },
+    attention: {
       id: 'attention:softmax',
       inputShape: 'Q: B,T,N,H · K,V: B,T,K,H',
       outputShape: 'B,T,N,H',
@@ -173,8 +169,8 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       summary: 'Scores every query against visible keys, softmaxes over positions, then mixes values.',
       sourceCue: 'quadratic attention in sequence length',
       parallelism: ['TP', 'CP'],
-    }),
-    oproj: moduleAccounting({
+    },
+    oproj: {
       id: 'attention:oproj',
       inputShape: 'B,T,N,H',
       outputShape: 'B,T,D',
@@ -184,8 +180,8 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       summary: 'Mixes attention heads back into the residual width.',
       sourceCue: 'attention output projection',
       parallelism: ['TP'],
-    }),
-    ffnLn: moduleAccounting({
+    },
+    ffnLn: {
       id: 'ffn:ln',
       inputShape: 'B,T,D',
       outputShape: 'B,T,D',
@@ -195,8 +191,8 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       summary: 'Pre-normalizes the post-attention residual before the dense FFN.',
       sourceCue: 'pre-norm residual block',
       parallelism: ['SP'],
-    }),
-    ffnUp: moduleAccounting({
+    },
+    ffnUp: {
       id: 'ffn:up',
       inputShape: 'B,T,D',
       outputShape: 'gate/up: B,T,F',
@@ -206,8 +202,8 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       summary: 'Expands residual features into SwiGLU gate and value streams.',
       sourceCue: 'MLP/FFN expansion',
       parallelism: ['TP'],
-    }),
-    ffnAct: moduleAccounting({
+    },
+    ffnAct: {
       id: 'ffn:act',
       inputShape: 'gate/up: B,T,F',
       outputShape: 'B,T,F',
@@ -217,8 +213,8 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       summary: 'Applies the SwiGLU non-linearity before projecting back down.',
       sourceCue: 'SwiGLU activation',
       parallelism: ['SP'],
-    }),
-    ffnDown: moduleAccounting({
+    },
+    ffnDown: {
       id: 'ffn:down',
       inputShape: 'B,T,F',
       outputShape: 'B,T,D',
@@ -228,8 +224,8 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       summary: 'Projects the expanded FFN representation back to the residual width.',
       sourceCue: 'MLP/FFN down projection',
       parallelism: ['TP'],
-    }),
-    residualAdd1: moduleAccounting({
+    },
+    residualAdd1: {
       id: 'mainline:junction1',
       inputShape: 'B,T,D + B,T,D',
       outputShape: 'B,T,D',
@@ -239,8 +235,8 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       summary: 'Adds the attention branch correction into the residual stream.',
       sourceCue: 'residual addition',
       parallelism: ['SP'],
-    }),
-    residualAdd2: moduleAccounting({
+    },
+    residualAdd2: {
       id: 'mainline:junction2',
       inputShape: 'B,T,D + B,T,D',
       outputShape: 'B,T,D',
@@ -250,7 +246,7 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       summary: 'Adds the FFN branch correction into the residual stream.',
       sourceCue: 'residual addition',
       parallelism: ['SP'],
-    }),
+    },
   }
 
   const params = Object.values(modules).reduce((sum, module) => sum + module.params, 0)

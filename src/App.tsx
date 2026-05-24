@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { RopeDashboard } from '@/RopeThreeJSVisualizer'
+import { LayerDashboard } from '@/components/dashboard/LayerDashboard'
 import { DetailDrawer } from '@/components/block/DetailDrawer'
 import { DEFAULT_LAYER_CONFIG, deriveLayerModel, type LayerConfig, type Lens } from '@/lib/layerModel'
 import { TransformerBlockView } from '@/TransformerBlockView'
@@ -23,23 +23,11 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
-  const setPosIClamped = useCallback((i: number) => {
-    setPosI(i)
-    setPosJ((j) => Math.min(j, i))
-  }, [])
-
-  const setPosJClamped = useCallback((j: number) => {
-    setPosJ(Math.min(j, posI))
-  }, [posI])
-
   const effectiveJ = Math.min(posJ, posI)
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <div className="observatory-bg" aria-hidden>
-        <div className="observatory-orb observatory-orb--cyan" />
-        <div className="observatory-orb observatory-orb--violet" />
-      </div>
+      <div className="observatory-bg" aria-hidden />
 
       <div className="relative z-10 w-full p-4 md:p-6 lg:p-8">
         <div className="max-w-[118rem] mx-auto flex flex-col xl:flex-row gap-5 lg:gap-6 items-start">
@@ -63,11 +51,11 @@ export default function App() {
           </div>
 
           <div className="w-full xl:w-[380px] shrink-0">
-            <RopeDashboard
+            <LayerDashboard
               posI={posI}
-              setPosI={setPosIClamped}
+              setPosI={setPosI}
               posJ={effectiveJ}
-              setPosJ={setPosJClamped}
+              setPosJ={setPosJ}
               headDim={layerConfig.headDim}
               base={base}
               setBase={setBase}
