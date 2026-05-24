@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import type { RopeStateProps } from '@/components/rope/ropeTypes'
 import { RopeWorkbench } from '@/components/rope/RopeWorkbench'
+import { MATH_NOTES_URL } from '@/lib/mathSources'
 import type { LayerModel, Lens, ModuleAccounting } from '@/lib/layerModel'
 import { formatBytes, formatCount } from '@/lib/layerModel'
 import { selectionKey, type SelectedModule } from '@/types/blockSelection'
@@ -175,7 +176,12 @@ function DetailExplorer({ meta, accounting, lens }: { meta: DetailMeta; accounti
       )}
 
       {meta.code && <div className="detail-code-block">{meta.code}</div>}
-      <p className="detail-hint">Estimates are per layer unless a metric explicitly includes all layers.</p>
+      <p className="detail-hint">
+        Estimates are per layer unless a metric explicitly includes all layers.{' '}
+        <a className="detail-source-link" href={MATH_NOTES_URL} target="_blank" rel="noreferrer">
+          Math notes
+        </a>
+      </p>
     </div>
   )
 }

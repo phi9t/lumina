@@ -618,6 +618,17 @@ body {
   margin: 0;
 }
 
+.detail-source-link {
+  color: rgba(165, 243, 252, 0.9);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(165, 243, 252, 0.45);
+}
+
+.detail-source-link:hover {
+  color: rgba(236, 254, 255, 0.98);
+  border-bottom-color: rgba(236, 254, 255, 0.72);
+}
+
 .detail-code-block {
   font-family: var(--font-mono);
   font-size: 13px;
