@@ -1,3 +1,9 @@
+/**
+ * ModuleNode — interactive SVG module plate (rect + labels + keyboard support).
+ *
+ * LEARNING NOTE: SVG has no <button>; this <g> uses role="button", tabIndex,
+ * and Enter/Space handlers for accessibility. See docs/learning-guide.md.
+ */
 import type { KeyboardEvent } from 'react'
 import { motion } from 'framer-motion'
 

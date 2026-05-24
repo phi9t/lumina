@@ -20,6 +20,18 @@ https://phi9t.github.io/lumina/
 
 The Pages workflow builds from `main` and deploys the static `dist/` output.
 
+## Learning the Codebase
+
+If you are new to frontend or visualization design, start with **[docs/learning-guide.md](docs/learning-guide.md)**. It walks through:
+
+- The three-panel layout and where state lives
+- A suggested file reading order (10 stops)
+- SVG circuit-diagram patterns used on the left
+- Why formulas live in the center drawer, not on the map
+- Hands-on exercises you can try in a few minutes
+
+Product constraints live in [docs/design-principles.md](docs/design-principles.md).
+
 ## Current Experience
 
 - **Left:** compact SVG transformer block map with residual mainline, Attention branch, FFN/SwiGLU branch, and residual `+` merges.
@@ -82,6 +94,7 @@ src/
 
 Supporting docs:
 
+- `docs/learning-guide.md` — **start here** if you are learning frontend or vis design from this repo.
 - `docs/design-principles.md` captures the product/design constraints.
 - `docs/transformer-math-notes.md` maps source-backed transformer formulas to the implementation.
 - `.workstreams/rope-workbench-legibility/` contains the completed workstream design and tracker.

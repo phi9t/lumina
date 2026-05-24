@@ -1,3 +1,9 @@
+/**
+ * Pure RoPE math — no React, no DOM. Unit-tested in ropeMath.test.ts.
+ *
+ * LEARNING NOTE: Keep visualization math here; components only map results to SVG.
+ * See docs/learning-guide.md § "Testing & verification".
+ */
 export type Vec2 = [number, number]
 
 export const Q_DEMO_BASE: Vec2 = [0.9, 0.35]

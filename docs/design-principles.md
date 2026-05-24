@@ -1,5 +1,7 @@
 # RoPE Visualizer Design Principles
 
+> **New to the codebase?** Read [learning-guide.md](./learning-guide.md) for a tour of React patterns, SVG layout, and why the three-column structure exists.
+
 ## Product Role
 
 This app is an interactive technical workbench, not a landing page. The interface should help users inspect one transformer layer, select modules, and explore RoPE mechanics without competing visual systems.
