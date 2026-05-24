@@ -44,8 +44,8 @@ const DETAILS: Record<string, DetailMeta> = {
     title: 'QKV projection',
     subtitle: 'Linear map from d_model to three heads worth of features',
     formula: 'Q,K,V = x̂ Wq, x̂ Wk, x̂ Wv',
-    shapes: 'x: [B, T, d_model] → Q,K,V: [B, T, n_heads, d_head]',
-    code: 'qkv = F.linear(x, qkv_weight)\nq, k, v = qkv.chunk(3, dim=-1)\nq = q.view(B, T, n_heads, d_head)',
+    shapes: 'x: [B, T, d_model] → Q: [B, T, n_heads, d_head] · K,V: [B, T, num_kv_heads, d_head]',
+    code: 'qkv = F.linear(x, qkv_weight)\nq_width = num_heads * d_head\nkv_width = num_kv_heads * d_head\nq, k, v = torch.split(qkv, [q_width, kv_width, kv_width], dim=-1)\nq = q.view(B, T, num_heads, d_head)\nk = k.view(B, T, num_kv_heads, d_head)\nv = v.view(B, T, num_kv_heads, d_head)',
   },
   'attention:softmax': {
     title: 'Scaled dot-product attention',

@@ -132,8 +132,11 @@ export function formatBytes(bytes: number): string {
 
 export function deriveLayerModel(config: LayerConfig): LayerModel {
   const warnings: string[] = []
-  if (config.dModel % config.numHeads !== 0 || config.dModel / config.numHeads !== config.headDim) {
+  if (config.dModel % config.numHeads !== 0) {
     warnings.push('D is not divisible by N; H and accounting are approximate.')
+  }
+  if (config.dModel % config.numHeads === 0 && config.dModel / config.numHeads !== config.headDim) {
+    warnings.push('H does not equal D / N; head-dimension accounting is approximate.')
   }
   if (config.numHeads % config.numKvHeads !== 0) {
     warnings.push('N is not divisible by K; GQA grouping is approximate.')

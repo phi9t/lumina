@@ -70,6 +70,7 @@ describe('deriveLayerModel', () => {
 
   test('reports approximation warnings for invalid head geometry', () => {
     const mismatchedHeadDim = deriveLayerModel({ ...DEFAULT_LAYER_CONFIG, dModel: 4097 })
+    const divisibleButWrongHeadDim = deriveLayerModel({ ...DEFAULT_LAYER_CONFIG, dModel: 4096, numHeads: 32, headDim: 64 })
     const nonDivisibleGroups = deriveLayerModel({
       ...DEFAULT_LAYER_CONFIG,
       dModel: 1024,
@@ -86,6 +87,8 @@ describe('deriveLayerModel', () => {
     })
 
     expect(mismatchedHeadDim.warnings).toContain('D is not divisible by N; H and accounting are approximate.')
+    expect(divisibleButWrongHeadDim.warnings).toContain('H does not equal D / N; head-dimension accounting is approximate.')
+    expect(divisibleButWrongHeadDim.warnings).not.toContain('D is not divisible by N; H and accounting are approximate.')
     expect(nonDivisibleGroups.warnings).toContain('N is not divisible by K; GQA grouping is approximate.')
     expect(tooManyKvHeads.warnings).toContain('K exceeds N; KV-head accounting is outside standard GQA/MQA assumptions.')
   })

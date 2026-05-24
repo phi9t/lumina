@@ -263,8 +263,12 @@ export function LayerDashboard({
               <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.params)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-500">Per-layer FLOPs</span>
-              <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.flops)}</span>
+              <span className="text-slate-500">Per-layer forward FLOPs</span>
+              <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.forwardFlops)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500">Per-layer training FLOPs</span>
+              <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.trainingFlops)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-500">Attn / FFN FLOPs</span>
