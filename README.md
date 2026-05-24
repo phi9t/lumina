@@ -83,6 +83,7 @@ src/
 Supporting docs:
 
 - `docs/design-principles.md` captures the product/design constraints.
+- `docs/transformer-math-notes.md` maps source-backed transformer formulas to the implementation.
 - `.workstreams/rope-workbench-legibility/` contains the completed workstream design and tracker.
 - `docs/superpowers/plans/2026-05-23-production-readiness.md` records the production-hardening plan.
 
