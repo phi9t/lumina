@@ -6,11 +6,18 @@ interface JunctionNodeProps {
   y: number
   label?: string
   active: boolean
+  dimmed?: boolean
+  mergeActive?: boolean
   onSelect: () => void
 }
 
-export function JunctionNode({ x, y, label, active, onSelect }: JunctionNodeProps) {
+export function JunctionNode({ x, y, label, active, dimmed = false, mergeActive = false, onSelect }: JunctionNodeProps) {
   const accessibleLabel = label != null && label.length > 0 ? `Residual merge, ${label}` : 'Residual merge'
+  const ringClass = [
+    'junction-ring',
+    active ? ' junction-ring--active' : '',
+    mergeActive ? ' junction-ring--merge-active' : '',
+  ].join('')
 
   function handleKeyDown(event: KeyboardEvent<SVGGElement>) {
     if (event.key !== 'Enter' && event.key !== ' ') return
@@ -25,13 +32,13 @@ export function JunctionNode({ x, y, label, active, onSelect }: JunctionNodeProp
       tabIndex={0}
       aria-label={accessibleLabel}
       aria-pressed={active}
-      style={{ cursor: 'pointer', transformOrigin: `${x}px ${y}px` }}
+      style={{ cursor: 'pointer', transformOrigin: `${x}px ${y}px`, opacity: dimmed ? 0.35 : 1 }}
       onClick={onSelect}
       onKeyDown={handleKeyDown}
-      whileHover={{ scale: 1.12 }}
+      whileHover={{ scale: dimmed ? 1 : 1.12 }}
       transition={{ type: 'spring', stiffness: 320, damping: 22 }}
     >
-      <circle cx={x} cy={y} r={13} className={`junction-ring${active ? ' junction-ring--active' : ''}`} />
+      <circle cx={x} cy={y} r={mergeActive ? 15 : 13} className={ringClass} />
       <line x1={x - 6} y1={y} x2={x + 6} y2={y} className="junction-cross" />
       <line x1={x} y1={y - 6} x2={x} y2={y + 6} className="junction-cross" />
       {label && (

@@ -38,7 +38,10 @@ export function RopeSpectrumView({ ropeState, selectedPair, onSelectPair }: Rope
                 <span>θ={pair.theta.toFixed(5)}</span>
               </span>
               <span className="rope-spectrum__bar">
-                <span className="rope-spectrum__bar-fill" style={{ width }} />
+                <span
+                  className={`rope-spectrum__bar-fill${pair.index % 2 === 1 ? ' rope-spectrum__bar-fill--alt' : ''}`}
+                  style={{ width }}
+                />
                 <span className="rope-spectrum__cycle" style={{ left: `${progress * 100}%` }} />
               </span>
               <span className="rope-spectrum__pair-foot">

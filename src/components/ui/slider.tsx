@@ -5,24 +5,24 @@ import { cn } from '@/lib/utils'
 
 const accentStyles = {
   cyan: {
-    range: 'bg-gradient-to-r from-teal-500 to-cyan-400',
+    range: 'bg-gradient-to-r from-cyan-600 to-cyan-400/90',
     thumb: 'border-cyan-400/80',
-    ring: 'focus-visible:ring-cyan-400/60',
+    ring: 'focus-visible:ring-cyan-400/50',
   },
   rose: {
-    range: 'bg-gradient-to-r from-rose-500 to-pink-400',
+    range: 'bg-gradient-to-r from-rose-600 to-rose-400/90',
     thumb: 'border-rose-400/80',
-    ring: 'focus-visible:ring-rose-400/60',
+    ring: 'focus-visible:ring-rose-400/50',
   },
   amber: {
-    range: 'bg-gradient-to-r from-amber-500 to-yellow-400',
+    range: 'bg-gradient-to-r from-amber-600 to-amber-400/90',
     thumb: 'border-amber-400/80',
-    ring: 'focus-visible:ring-amber-400/60',
+    ring: 'focus-visible:ring-amber-400/50',
   },
   violet: {
-    range: 'bg-gradient-to-r from-violet-500 to-purple-400',
+    range: 'bg-gradient-to-r from-violet-600 to-violet-400/90',
     thumb: 'border-violet-400/80',
-    ring: 'focus-visible:ring-violet-400/60',
+    ring: 'focus-visible:ring-violet-400/50',
   },
 } as const
 
@@ -44,7 +44,7 @@ const Slider = React.forwardRef<
       </SliderPrimitive.Track>
       <SliderPrimitive.Thumb
         className={cn(
-          'block h-4 w-4 rounded-full border-2 bg-slate-950 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2',
+          'block h-4 w-4 rounded-full border-2 bg-slate-950 shadow-[0_0_0_1px_rgba(15,23,42,0.8)] transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2',
           styles.thumb,
           styles.ring,
         )}

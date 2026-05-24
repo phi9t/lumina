@@ -12,10 +12,20 @@ const X2 = 716
 const QUERY_Y = 48
 const K_Y = 124
 const V_Y = 170
+const OUT_Y = 196
 
 function xForPosition(position: number, current: number): number {
   if (current <= 0) return X2
   return X1 + (position / current) * (X2 - X1)
+}
+
+function fanTargetsFor(current: number, selected: number): number[] {
+  const fanStep = current > 72 ? 3 : current > 36 ? 2 : 1
+  const targets = new Set<number>()
+  for (let p = 0; p <= current; p += fanStep) targets.add(p)
+  targets.add(selected)
+  targets.add(current)
+  return [...targets].sort((a, b) => a - b)
 }
 
 export function RopeCacheView({ ropeState, layerModel }: RopeCacheViewProps) {
@@ -23,8 +33,7 @@ export function RopeCacheView({ ropeState, layerModel }: RopeCacheViewProps) {
   const selected = Math.min(ropeState.posJ, current)
   const positions = Array.from({ length: current + 1 }, (_, p) => p)
   const cellW = Math.max(3, Math.min(18, (X2 - X1) / Math.max(1, current + 1) - 2))
-  const fanStep = current > 72 ? 3 : current > 36 ? 2 : 1
-  const fanTargets = positions.filter((p) => p % fanStep === 0 || p === selected)
+  const fanTargets = fanTargetsFor(current, selected)
   const selectedX = xForPosition(selected, current)
   const currentX = xForPosition(current, current)
   const modeHint =
@@ -34,7 +43,13 @@ export function RopeCacheView({ ropeState, layerModel }: RopeCacheViewProps) {
 
   return (
     <div className="rope-cache">
-      <svg viewBox="0 0 760 230" className="rope-cache__svg" role="img" aria-label="RoPE KV cache timeline">
+      <svg viewBox="0 0 760 250" className="rope-cache__svg" role="img" aria-label="RoPE KV cache timeline">
+        <defs>
+          <marker id="rope-cache-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" className="rope-cache__arrow-head" />
+          </marker>
+        </defs>
+
         <text x={X1} y="24" className="rope-cache__axis-label">
           earliest token
         </text>
@@ -79,18 +94,37 @@ export function RopeCacheView({ ropeState, layerModel }: RopeCacheViewProps) {
           return (
             <g key={p}>
               <rect x={x - cellW / 2} y={K_Y - 12} width={cellW} height="24" rx="3" className={className} />
-              <rect x={x - cellW / 2} y={V_Y - 12} width={cellW} height="24" rx="3" className={className} />
+              <rect
+                x={x - cellW / 2}
+                y={V_Y - 12}
+                width={cellW}
+                height="24"
+                rx="3"
+                className={`${className} rope-cache__cell--v`}
+              />
             </g>
           )
         })}
 
-        <line x1={X1} y1="200" x2={X2} y2="200" className="rope-cache__timeline" />
-        <circle cx={selectedX} cy="200" r="6" className="rope-cache__selected-dot" />
-        <circle cx={currentX} cy="200" r="7" className="rope-cache__current-dot" />
-        <text x={selectedX} y="220" textAnchor="middle" className="rope-cache__marker-label">
+        <line
+          x1={selectedX}
+          y1={V_Y + 14}
+          x2={currentX}
+          y2={OUT_Y - 8}
+          className="rope-cache__weighted"
+          markerEnd="url(#rope-cache-arrow)"
+        />
+        <text x={(selectedX + currentX) / 2} y={OUT_Y - 14} textAnchor="middle" className="rope-cache__weighted-label">
+          Σ attn · V → out
+        </text>
+
+        <line x1={X1} y1="220" x2={X2} y2="220" className="rope-cache__timeline" />
+        <circle cx={selectedX} cy="220" r="6" className="rope-cache__selected-dot" />
+        <circle cx={currentX} cy="220" r="7" className="rope-cache__current-dot" />
+        <text x={selectedX} y="240" textAnchor="middle" className="rope-cache__marker-label">
           j={selected}
         </text>
-        <text x={currentX} y="220" textAnchor="middle" className="rope-cache__marker-label">
+        <text x={currentX} y="240" textAnchor="middle" className="rope-cache__marker-label">
           i={current}
         </text>
       </svg>

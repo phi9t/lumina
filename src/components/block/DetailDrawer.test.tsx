@@ -12,11 +12,29 @@ describe('DetailDrawer', () => {
         lens="shapes"
         layerModel={deriveLayerModel(DEFAULT_LAYER_CONFIG)}
         onClose={() => {}}
+        onSelectModule={() => {}}
       />,
     )
 
     expect(markup).toContain('num_kv_heads * d_head')
     expect(markup).toContain('k = k.view(B, T, num_kv_heads, d_head)')
     expect(markup).not.toContain('qkv.chunk(3')
+  })
+
+  test('renders idle placeholder when nothing is selected', () => {
+    const markup = renderToStaticMarkup(
+      <DetailDrawer
+        selected={null}
+        ropeState={{ posI: 24, posJ: 8, headDim: DEFAULT_LAYER_CONFIG.headDim, base: 10000 }}
+        lens="flow"
+        layerModel={deriveLayerModel(DEFAULT_LAYER_CONFIG)}
+        onClose={() => {}}
+        onSelectModule={() => {}}
+      />,
+    )
+
+    expect(markup).toContain('Select a module on the left')
+    expect(markup).toContain('Attention → RoPE')
+    expect(markup).toContain('lens=Flow')
   })
 })

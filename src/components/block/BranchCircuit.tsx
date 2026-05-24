@@ -1,3 +1,9 @@
+/**
+ * BranchCircuit — one Attention or FFN sideline (tee → pre-norm → steps → merge).
+ *
+ * LEARNING NOTE: Wiring uses orthogonal SVG paths (H/V only). Layout constants
+ * (SHELL_WIDTH, stepGap) keep plates from overlapping. See docs/learning-guide.md.
+ */
 import type { BranchDef } from './circuitTypes'
 import { ModuleNode } from './ModuleNode'
 import { VerticalStepChain } from './VerticalStepChain'
@@ -12,6 +18,7 @@ interface BranchCircuitProps {
   branchKind: 'attention' | 'ffn'
   title: string
   selectedSub: string | null
+  focusBranch: 'attention' | 'ffn' | 'mainline' | null
   onSelect: (sub: string) => void
 }
 
@@ -35,6 +42,7 @@ export function BranchCircuit({
   branchKind,
   title,
   selectedSub,
+  focusBranch,
   onSelect,
 }: BranchCircuitProps) {
   const { preNorm, steps } = branch
@@ -70,10 +78,17 @@ export function BranchCircuit({
   const returnPath = `M ${shellCenterX} ${shellBottom} H ${spineX} V ${junctionY} H ${mainlineX}`
 
   const preNormSelected = selectedSub === preNorm.id
-  const preNormDimmed = selectedSub != null && !preNormSelected
+  const branchActive = focusBranch === branchKind
+  const branchInactive =
+    focusBranch != null &&
+    (focusBranch === 'mainline' || (focusBranch === 'attention' && branchKind === 'ffn') || (focusBranch === 'ffn' && branchKind === 'attention'))
+  const preNormDimmed = branchInactive || (selectedSub != null && !preNormSelected && branchActive)
 
   return (
-    <g className={`branch-circuit branch-circuit--${branchKind}`}>
+    <g
+      className={`branch-circuit branch-circuit--${branchKind}${branchActive ? ' branch-circuit--active' : ''}${branchInactive ? ' branch-circuit--dimmed' : ''}`}
+      opacity={branchInactive ? 0.35 : 1}
+    >
       <defs aria-hidden="true">
         <marker
           id={arrowId}

@@ -1,3 +1,6 @@
+/**
+ * RopeIdentityView — 2D SVG proof that absolute and relative RoPE frames match.
+ */
 import type { ReactNode } from 'react'
 import type { SelectedPairValues, Vec2 } from '@/lib/ropeMath'
 
@@ -20,17 +23,19 @@ function VectorArrow({
   vector,
   label,
   className,
+  animKey,
 }: {
   centerX: number
   centerY: number
   vector: Vec2
   label: string
   className: string
+  animKey: string
 }) {
   const [x2, y2] = vectorPoint(centerX, centerY, vector)
   const labelX = x2 + (x2 >= centerX ? 10 : -10)
   return (
-    <g className={className}>
+    <g className={`${className} rope-identity__vector-group`} key={animKey}>
       <line x1={centerX} y1={centerY} x2={x2} y2={y2} className="rope-identity__vector" markerEnd="url(#rope-vector-arrow)" />
       <circle cx={x2} cy={y2} r="4.5" className="rope-identity__tip" />
       <text x={labelX} y={y2 - 8} textAnchor={x2 >= centerX ? 'start' : 'end'} className="rope-identity__label">
@@ -40,15 +45,7 @@ function VectorArrow({
   )
 }
 
-function Frame({
-  x,
-  title,
-  children,
-}: {
-  x: number
-  title: string
-  children: ReactNode
-}) {
+function Frame({ x, title, children }: { x: number; title: string; children: ReactNode }) {
   const centerX = x + 125
   return (
     <g>
@@ -65,6 +62,10 @@ function Frame({
 }
 
 export function RopeIdentityView({ values, qBase }: RopeIdentityViewProps) {
+  const animKey = `${values.delta}-${values.theta.toFixed(4)}`
+  const leftCenter = 149
+  const rightCenter = 611
+
   return (
     <div className="rope-identity">
       <svg viewBox="0 0 760 300" className="rope-identity__svg" role="img" aria-label="RoPE absolute and relative identity">
@@ -75,12 +76,35 @@ export function RopeIdentityView({ values, qBase }: RopeIdentityViewProps) {
         </defs>
 
         <Frame x={24} title="absolute frame">
-          <VectorArrow centerX={149} centerY={CENTER_Y} vector={values.qAbsolute} label="R_i q" className="rope-identity__query" />
-          <VectorArrow centerX={149} centerY={CENTER_Y} vector={values.kAbsolute} label="R_j k" className="rope-identity__key" />
-          <text x="149" y="226" textAnchor="middle" className="rope-identity__score">
+          <VectorArrow
+            centerX={leftCenter}
+            centerY={CENTER_Y}
+            vector={values.qAbsolute}
+            label="R_i q"
+            className="rope-identity__query"
+            animKey={`q-${animKey}`}
+          />
+          <VectorArrow
+            centerX={leftCenter}
+            centerY={CENTER_Y}
+            vector={values.kAbsolute}
+            label="R_j k"
+            className="rope-identity__key"
+            animKey={`k-${animKey}`}
+          />
+          <text x={leftCenter} y="226" textAnchor="middle" className="rope-identity__score">
             score={values.absoluteScore.toFixed(4)}
           </text>
         </Frame>
+
+        <path
+          d={`M 274 ${CENTER_Y - 20} Q 380 ${CENTER_Y - 52} 486 ${CENTER_Y - 20}`}
+          className="rope-identity__score-arc"
+          fill="none"
+        />
+        <text x="380" y={CENTER_Y - 58} textAnchor="middle" className="rope-identity__score-arc-label">
+          dot={values.absoluteScore.toFixed(3)}
+        </text>
 
         <text x="380" y="104" textAnchor="middle" className="rope-identity__equals">
           =
@@ -90,9 +114,23 @@ export function RopeIdentityView({ values, qBase }: RopeIdentityViewProps) {
         </text>
 
         <Frame x={486} title="relative frame">
-          <VectorArrow centerX={611} centerY={CENTER_Y} vector={qBase} label="q" className="rope-identity__query" />
-          <VectorArrow centerX={611} centerY={CENTER_Y} vector={values.kRelative} label="R_delta k" className="rope-identity__relative" />
-          <text x="611" y="226" textAnchor="middle" className="rope-identity__score">
+          <VectorArrow
+            centerX={rightCenter}
+            centerY={CENTER_Y}
+            vector={qBase}
+            label="q"
+            className="rope-identity__query"
+            animKey={`qb-${animKey}`}
+          />
+          <VectorArrow
+            centerX={rightCenter}
+            centerY={CENTER_Y}
+            vector={values.kRelative}
+            label="R_delta k"
+            className="rope-identity__relative"
+            animKey={`kr-${animKey}`}
+          />
+          <text x={rightCenter} y="226" textAnchor="middle" className="rope-identity__score">
             score={values.relativeScore.toFixed(4)}
           </text>
         </Frame>

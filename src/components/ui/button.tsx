@@ -11,9 +11,7 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-slate-100 text-slate-900 hover:bg-white',
         secondary:
-          'border border-slate-600/40 bg-slate-900/60 text-slate-200 hover:border-teal-400/30 hover:bg-slate-800/80 hover:shadow-[0_0_24px_rgba(45,212,191,0.12)]',
-        glow:
-          'border border-teal-400/25 bg-gradient-to-b from-teal-500/20 to-cyan-500/10 text-teal-100 shadow-[0_0_32px_rgba(45,212,191,0.15)] hover:border-teal-300/40 hover:shadow-[0_0_40px_rgba(45,212,191,0.25)]',
+          'border border-slate-600/40 bg-slate-900/60 text-slate-200 hover:border-teal-400/30 hover:bg-slate-800/80',
       },
       size: {
         default: 'h-11 px-5 py-2',

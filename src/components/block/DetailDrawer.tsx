@@ -1,7 +1,11 @@
+/**
+ * DetailDrawer — center panel: formulas, shapes, pseudocode, and RoPE workbench.
+ */
+import type { ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import type { RopeStateProps } from '@/components/rope/ropeTypes'
-import { RopeWorkbench } from '@/components/rope/RopeWorkbench'
+import { RopeWorkbench, type RopeWorkbenchTab } from '@/components/rope/RopeWorkbench'
 import { MATH_NOTES_URL } from '@/lib/mathSources'
 import type { LayerModel, Lens, ModuleAccounting } from '@/lib/layerModel'
 import { formatBytes, formatCount } from '@/lib/layerModel'
@@ -13,6 +17,7 @@ interface DetailDrawerProps {
   lens: Lens
   layerModel: LayerModel
   onClose: () => void
+  onSelectModule: (sel: SelectedModule) => void
 }
 
 interface DetailMeta {
@@ -31,7 +36,6 @@ const DETAILS: Record<string, DetailMeta> = {
     formula: '(R_i q)ᵀ (R_j k) = qᵀ R_{j−i} k',
     shapes: 'q, k: [B, T, n_heads, d_head] → [B, T, n_heads, d_head]',
     code: 'q_rotated = apply_rotary_emb(q, freqs_cis)\nk_rotated = apply_rotary_emb(k, freqs_cis)',
-    body: 'Each disk is one 2D pair; the magenta edge is the attention score between current token i and a cached key j.',
   },
   'attention:ln': {
     title: 'LayerNorm (pre-attention)',
@@ -117,6 +121,30 @@ const DETAILS: Record<string, DetailMeta> = {
   },
 }
 
+const IDLE_SUGGESTIONS: Array<{ label: string; selection: SelectedModule }> = [
+  { label: 'Attention → RoPE', selection: { branch: 'attention', submodule: 'rope' } },
+  { label: 'Attention → softmax', selection: { branch: 'attention', submodule: 'softmax' } },
+  { label: 'FFN → up proj', selection: { branch: 'ffn', submodule: 'up' } },
+]
+
+const LENS_LABELS: Record<Lens, string> = {
+  flow: 'Flow',
+  shapes: 'Shapes',
+  compute: 'Compute',
+  memory: 'Memory',
+  parallelism: 'Parallelism',
+}
+
+function defaultWorkbenchTab(key: string): RopeWorkbenchTab {
+  if (key === 'attention:softmax' || key === 'attention:qkv') return 'cache'
+  if (key === 'attention:rope') return 'identity'
+  return 'identity'
+}
+
+function showsRopeWorkbench(key: string): boolean {
+  return key === 'attention:rope' || key === 'attention:softmax' || key === 'attention:qkv'
+}
+
 function accountingFor(key: string, model: LayerModel): ModuleAccounting | null {
   const lookup: Record<string, ModuleAccounting> = {
     'attention:ln': model.modules.attentionLn,
@@ -143,7 +171,34 @@ function MetricPill({ label, value }: { label: string; value: string }) {
   )
 }
 
-function DetailExplorer({ meta, accounting, lens }: { meta: DetailMeta; accounting: ModuleAccounting | null; lens: Lens }) {
+function ShapeRenderer({ shapeString }: { shapeString: string }) {
+  if (!shapeString) return null
+  const parts = shapeString.split(/(→|\[.*?\])/g).filter(Boolean)
+  return (
+    <div className="shape-row">
+      {parts.map((part, i) => {
+        const trimmed = part.trim()
+        if (!trimmed) return null
+        if (trimmed.startsWith('[')) {
+          return <span key={i} className="shape-pill">{trimmed}</span>
+        }
+        return <span key={i}>{trimmed}</span>
+      })}
+    </div>
+  )
+}
+
+function DetailExplorer({
+  meta,
+  accounting,
+  lens,
+  cacheChip,
+}: {
+  meta: DetailMeta
+  accounting: ModuleAccounting | null
+  lens: Lens
+  cacheChip?: ReactNode
+}) {
   return (
     <div className="detail-explorer">
       <div className="detail-section">
@@ -155,12 +210,20 @@ function DetailExplorer({ meta, accounting, lens }: { meta: DetailMeta; accounti
         <div className="detail-section">
           <div className="detail-section__label">Tensor path</div>
           <div className="detail-shapes">
-            {accounting ? `${accounting.inputShape} → ${accounting.outputShape}` : meta.shapes}
+            <ShapeRenderer shapeString={accounting ? `${accounting.inputShape} → ${accounting.outputShape}` : meta.shapes || ''} />
           </div>
         </div>
         <div className="detail-section">
           <div className="detail-section__label">Source cue</div>
-          <div className="detail-source-cue">{accounting?.sourceCue ?? 'one-layer transformer block'}</div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            className="detail-source-cue"
+          >
+            {accounting?.sourceCue ?? 'one-layer transformer block'}
+          </motion.div>
         </div>
       </div>
 
@@ -176,6 +239,7 @@ function DetailExplorer({ meta, accounting, lens }: { meta: DetailMeta; accounti
       )}
 
       {meta.code && <div className="detail-code-block">{meta.code}</div>}
+      {cacheChip}
       <p className="detail-hint">
         Estimates are per layer unless a metric explicitly includes all layers.{' '}
         <a className="detail-source-link" href={MATH_NOTES_URL} target="_blank" rel="noreferrer">
@@ -186,10 +250,89 @@ function DetailExplorer({ meta, accounting, lens }: { meta: DetailMeta; accounti
   )
 }
 
-export function DetailDrawer({ selected, ropeState, lens, layerModel, onClose }: DetailDrawerProps) {
+function DetailIdleState({
+  ropeState,
+  lens,
+  layerModel,
+  onSelectModule,
+}: {
+  ropeState: RopeStateProps
+  lens: Lens
+  layerModel: LayerModel
+  onSelectModule: (sel: SelectedModule) => void
+}) {
+  const { config } = layerModel
+  return (
+    <motion.div
+      key="idle"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+      className="detail-drawer detail-drawer--idle"
+    >
+      <div className="detail-placeholder detail-placeholder--idle">
+        <span className="detail-placeholder__corner detail-placeholder__corner--tl" aria-hidden />
+        <span className="detail-placeholder__corner detail-placeholder__corner--tr" aria-hidden />
+        <span className="detail-placeholder__corner detail-placeholder__corner--bl" aria-hidden />
+        <span className="detail-placeholder__corner detail-placeholder__corner--br" aria-hidden />
+        <div className="detail-placeholder__scanline" aria-hidden />
+
+        <div className="detail-placeholder__header">
+          <span className="detail-placeholder__eyebrow">Mathematical detail drawer</span>
+          <h2 className="detail-placeholder__title">Select a module on the left</h2>
+          <p className="detail-placeholder__copy">
+            Formulas, tensor shapes, accounting, and RoPE drilldowns appear here. Esc closes an open module.
+          </p>
+        </div>
+
+        <div className="detail-placeholder__readout" aria-label="Live layer readout">
+          <span>B={config.batch}</span>
+          <span>T={config.seqLen.toLocaleString()}</span>
+          <span>D={config.dModel.toLocaleString()}</span>
+          <span>i={ropeState.posI}</span>
+          <span>j={ropeState.posJ}</span>
+          <span>lens={LENS_LABELS[lens]}</span>
+          <span>KV={formatBytes(layerModel.kvCache.bytes)}</span>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+          className="detail-placeholder__suggestions"
+        >
+          <span className="detail-placeholder__suggestions-label">Suggested entry points</span>
+          <div className="detail-placeholder__chips">
+            {IDLE_SUGGESTIONS.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                className="detail-placeholder__chip"
+                onClick={() => onSelectModule(item.selection)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </motion.div>
+  )
+}
+
+export function DetailDrawer({
+  selected,
+  ropeState,
+  lens,
+  layerModel,
+  onClose,
+  onSelectModule,
+}: DetailDrawerProps) {
   return (
     <AnimatePresence mode="wait">
-      {selected && (
+      {selected ? (
         <motion.div
           key={selectionKey(selected)}
           initial={{ opacity: 0, y: 10 }}
@@ -201,6 +344,13 @@ export function DetailDrawer({ selected, ropeState, lens, layerModel, onClose }:
           <DetailHeader selected={selected} onClose={onClose} />
           <DetailBody selected={selected} ropeState={ropeState} lens={lens} layerModel={layerModel} />
         </motion.div>
+      ) : (
+        <DetailIdleState
+          ropeState={ropeState}
+          lens={lens}
+          layerModel={layerModel}
+          onSelectModule={onSelectModule}
+        />
       )}
     </AnimatePresence>
   )
@@ -242,12 +392,16 @@ function DetailBody({
   const meta = DETAILS[key] ?? { title: key, subtitle: '' }
   const accounting = accountingFor(key, layerModel)
 
-  if (key === 'attention:rope') {
+  if (showsRopeWorkbench(key)) {
     return (
-      <div className="detail-drawer__body detail-drawer__body--rope">
-        <DetailExplorer meta={meta} accounting={accounting} lens={lens} />
-        <RopeWorkbench ropeState={ropeState} layerModel={layerModel} />
-      </div>
+      <RopeWorkbenchSection
+        meta={meta}
+        accounting={accounting}
+        lens={lens}
+        ropeState={ropeState}
+        layerModel={layerModel}
+        moduleKey={key}
+      />
     )
   }
 
@@ -255,5 +409,44 @@ function DetailBody({
     <div className="detail-drawer__body">
       <DetailExplorer meta={meta} accounting={accounting} lens={lens} />
     </div>
+  )
+}
+
+function RopeWorkbenchSection({
+  meta,
+  accounting,
+  lens,
+  ropeState,
+  layerModel,
+  moduleKey,
+}: {
+  meta: DetailMeta
+  accounting: ModuleAccounting | null
+  lens: Lens
+  ropeState: RopeStateProps
+  layerModel: LayerModel
+  moduleKey: string
+}) {
+  return (
+    <RopeWorkbench
+      key={moduleKey}
+      ropeState={ropeState}
+      layerModel={layerModel}
+      defaultTab={defaultWorkbenchTab(moduleKey)}
+      header={(setTab) => (
+        <DetailExplorer
+          meta={meta}
+          accounting={accounting}
+          lens={lens}
+          cacheChip={
+            moduleKey === 'attention:softmax' ? (
+              <button type="button" className="detail-cache-chip" onClick={() => setTab('cache')}>
+                Open KV cache timeline →
+              </button>
+            ) : undefined
+          }
+        />
+      )}
+    />
   )
 }

@@ -1,3 +1,6 @@
+/**
+ * TransformerBlockView — compact SVG navigation map for one decoder layer.
+ */
 import { BranchCircuit, type BranchDef } from '@/components/block/BranchCircuit'
 import { JunctionNode } from '@/components/block/JunctionNode'
 import { MainlineRailVertical } from '@/components/block/MainlineRail'
@@ -7,13 +10,11 @@ import type { AttentionSub, FfnSub, MainlineSub, SelectedModule } from '@/types/
 const VIEW_W = 430
 const VIEW_H = 990
 
-/** Vertical residual mainline (top → bottom) — keep clear of branch sideline */
 const MAINLINE_X = 72
 
 const Y_IN = 64
 const Y_ATTN_TEE = 100
 const Y_J1 = 485
-/** FFN tees below first junction label */
 const Y_FFN_TEE = Y_J1 + 48
 const Y_J2 = 845
 const Y_OUT = 930
@@ -42,11 +43,27 @@ interface TransformerBlockViewProps {
   onSelect: (sel: SelectedModule) => void
 }
 
+function mainlineEmphasis(focusBranch: 'attention' | 'ffn' | 'mainline' | null): 'boost' | 'normal' | 'dim' {
+  if (focusBranch == null || focusBranch === 'mainline') return 'boost'
+  return 'dim'
+}
+
+function junctionDimmed(which: 'junction1' | 'junction2', selected: SelectedModule | null): boolean {
+  if (selected == null) return false
+  if (selected.branch === 'mainline') {
+    if (which === 'junction1') return selected.submodule === 'junction2' || selected.submodule === 'out'
+    return selected.submodule === 'in' || selected.submodule === 'junction1'
+  }
+  if (which === 'junction1') return selected.branch === 'ffn'
+  return selected.branch === 'attention'
+}
+
 export function TransformerBlockView({ selected, onSelect }: TransformerBlockViewProps) {
   const attnSub = selected?.branch === 'attention' ? selected.submodule : null
   const ffnSub = selected?.branch === 'ffn' ? selected.submodule : null
   const mainSub = selected?.branch === 'mainline' ? selected.submodule : null
   const hasSelection = selected != null
+  const focusBranch = selected?.branch ?? null
 
   return (
     <div className="block-view-frame block-view-frame--vertical">
@@ -72,6 +89,7 @@ export function TransformerBlockView({ selected, onSelect }: TransformerBlockVie
             junctionY={Y_J1}
             branch={ATTENTION_BRANCH}
             selectedSub={attnSub}
+            focusBranch={focusBranch}
             onSelect={(sub) => onSelect({ branch: 'attention', submodule: sub as AttentionSub })}
           />
           <BranchCircuit
@@ -82,10 +100,16 @@ export function TransformerBlockView({ selected, onSelect }: TransformerBlockVie
             junctionY={Y_J2}
             branch={FFN_BRANCH}
             selectedSub={ffnSub}
+            focusBranch={focusBranch}
             onSelect={(sub) => onSelect({ branch: 'ffn', submodule: sub as FfnSub })}
           />
 
-          <MainlineRailVertical x={MAINLINE_X} y1={Y_IN + 18} y2={Y_OUT - 18} />
+          <MainlineRailVertical
+            x={MAINLINE_X}
+            y1={Y_IN + 18}
+            y2={Y_OUT - 18}
+            emphasis={mainlineEmphasis(focusBranch)}
+          />
 
           <text
             x={MAINLINE_X - 48}
@@ -127,6 +151,8 @@ export function TransformerBlockView({ selected, onSelect }: TransformerBlockVie
             y={Y_J1}
             label="x ⊕ attn"
             active={mainSub === ('junction1' satisfies MainlineSub)}
+            dimmed={junctionDimmed('junction1', selected)}
+            mergeActive={focusBranch === 'attention' || mainSub === 'junction1'}
             onSelect={() => onSelect({ branch: 'mainline', submodule: 'junction1' })}
           />
           <JunctionNode
@@ -134,6 +160,8 @@ export function TransformerBlockView({ selected, onSelect }: TransformerBlockVie
             y={Y_J2}
             label="x ⊕ ffn"
             active={mainSub === ('junction2' satisfies MainlineSub)}
+            dimmed={junctionDimmed('junction2', selected)}
+            mergeActive={focusBranch === 'ffn' || mainSub === 'junction2'}
             onSelect={() => onSelect({ branch: 'mainline', submodule: 'junction2' })}
           />
         </g>

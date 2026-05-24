@@ -1,3 +1,10 @@
+/**
+ * App — root layout and shared application state.
+ *
+ * LEARNING NOTE: This is the single owner of cross-panel state (selection, lens,
+ * layer config, RoPE positions). Children receive props and call setters — see
+ * docs/learning-guide.md § "React patterns" and § "three panels".
+ */
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { LayerDashboard } from '@/components/dashboard/LayerDashboard'
@@ -47,6 +54,7 @@ export default function App() {
               lens={lens}
               layerModel={layerModel}
               onClose={() => setSelected(null)}
+              onSelectModule={setSelected}
             />
           </div>
 

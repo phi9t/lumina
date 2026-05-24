@@ -7,15 +7,9 @@ import type { LayerConfig, LayerModel, Lens } from '@/lib/layerModel'
 import { LENS_EXPLANATIONS, formatBytes, formatCount } from '@/lib/layerModel'
 import type { RopeStateProps } from '@/components/rope/ropeTypes'
 import { relativeDelta } from '@/lib/ropeMath'
+import { VISUAL_TOKENS } from '@/lib/visualTokens'
 
 export type { RopeStateProps } from '@/components/rope/ropeTypes'
-
-const PALETTE = {
-  query: '#38bdf8',
-  key: '#fb7185',
-  relative: '#a78bfa',
-  edge: '#e879f9',
-} as const
 
 function LegendItem({ color, label }: { color: string; label: string }) {
   return (
@@ -57,12 +51,12 @@ export interface LayerDashboardProps extends RopeStateProps {
   layerModel: LayerModel
 }
 
-const LENSES: Array<{ id: Lens; label: string }> = [
-  { id: 'flow', label: 'Flow' },
-  { id: 'shapes', label: 'Shapes' },
-  { id: 'compute', label: 'Compute' },
-  { id: 'memory', label: 'Memory' },
-  { id: 'parallelism', label: 'Parallelism' },
+const LENSES: Array<{ id: Lens; label: string; short: string }> = [
+  { id: 'flow', label: 'Flow', short: 'Flw' },
+  { id: 'shapes', label: 'Shapes', short: 'Shp' },
+  { id: 'compute', label: 'Compute', short: 'Cmp' },
+  { id: 'memory', label: 'Memory', short: 'Mem' },
+  { id: 'parallelism', label: 'Parallelism', short: 'Par' },
 ]
 
 const SOURCE_CONCEPTS: Record<Lens, string[]> = {
@@ -75,7 +69,7 @@ const SOURCE_CONCEPTS: Record<Lens, string[]> = {
 
 function LensSelector({ lens, setLens }: { lens: Lens; setLens: (v: Lens) => void }) {
   return (
-    <div className="lens-selector" role="tablist" aria-label="Transformer layer lens">
+    <div className="lens-selector lens-selector--scroll" role="tablist" aria-label="Transformer layer lens">
       {LENSES.map((item) => (
         <button
           key={item.id}
@@ -83,7 +77,8 @@ function LensSelector({ lens, setLens }: { lens: Lens; setLens: (v: Lens) => voi
           className={`lens-selector__button${lens === item.id ? ' lens-selector__button--active' : ''}`}
           onClick={() => setLens(item.id)}
         >
-          {item.label}
+          <span className="lens-selector__label-full">{item.label}</span>
+          <span className="lens-selector__label-short">{item.short}</span>
         </button>
       ))}
     </div>
@@ -115,6 +110,23 @@ function OptionToggle<T extends string | number>({
   )
 }
 
+function DashboardSection({
+  title,
+  defaultOpen = true,
+  children,
+}: {
+  title: string
+  defaultOpen?: boolean
+  children: ReactNode
+}) {
+  return (
+    <details className="dashboard-section" open={defaultOpen}>
+      <summary className="dashboard-section__summary">{title}</summary>
+      <div className="dashboard-section__body space-y-5">{children}</div>
+    </details>
+  )
+}
+
 export function LayerDashboard({
   posI,
   posJ,
@@ -131,7 +143,6 @@ export function LayerDashboard({
 }: LayerDashboardProps) {
   const effectiveJ = Math.min(posJ, posI)
   const delta = relativeDelta(posI, posJ)
-  // theta decreases with pair index; the largest pair index is the slowest rotation.
   const slowestTheta = 1 / Math.pow(base, (2 * Math.max(0, Math.floor(headDim / 2) - 1)) / headDim)
   const relativePhase = Math.abs(delta) * slowestTheta
   const setConfig = (patch: Partial<LayerConfig>) => {
@@ -179,19 +190,41 @@ export function LayerDashboard({
           <p className="lens-explanation">{LENS_EXPLANATIONS[lens]}</p>
 
           <div className="grid grid-cols-2 gap-3 py-1">
-            <LegendItem color={PALETTE.query} label="Q heads N" />
-            <LegendItem color={PALETTE.key} label="KV heads K" />
-            <LegendItem color={PALETTE.edge} label="Attention score" />
-            <LegendItem color={PALETTE.relative} label="RoPE rotation" />
+            <LegendItem color={VISUAL_TOKENS.query} label="Q heads N" />
+            <LegendItem color={VISUAL_TOKENS.key} label="KV heads K" />
+            <LegendItem color={VISUAL_TOKENS.edge} label="Attention score" />
+            <LegendItem color={VISUAL_TOKENS.relative} label="RoPE rotation" />
           </div>
 
-          <div className="space-y-5 pt-1">
+          <DashboardSection title="Sequence & RoPE">
             <ControlRow label="Batch B" value={layerConfig.batch}>
               <Slider accent="cyan" value={[layerConfig.batch]} min={1} max={8} step={1} onValueChange={(v) => setConfig({ batch: v[0] })} />
             </ControlRow>
             <ControlRow label="Sequence T" value={layerConfig.seqLen.toLocaleString()}>
               <Slider accent="cyan" value={[layerConfig.seqLen]} min={128} max={32768} step={128} onValueChange={(v) => setConfig({ seqLen: v[0] })} />
             </ControlRow>
+            <ControlRow label="Current token position i (right)" value={posI}>
+              <Slider accent="cyan" value={[posI]} min={0} max={96} step={1} onValueChange={(v) => setPosI(v[0])} />
+            </ControlRow>
+            <ControlRow label="Highlight cache key j (left)" value={effectiveJ}>
+              <Slider
+                accent="rose"
+                value={[effectiveJ]}
+                min={0}
+                max={Math.max(posI, 1)}
+                step={1}
+                onValueChange={(v) => setPosJ(v[0])}
+              />
+            </ControlRow>
+            <ControlRow label="Head dimension" value={headDim}>
+              <div className="readonly-track">derived from D / N when divisible</div>
+            </ControlRow>
+            <ControlRow label="RoPE base" value={base.toLocaleString()}>
+              <Slider accent="violet" value={[base]} min={1000} max={50000} step={1000} onValueChange={(v) => setBase(v[0])} />
+            </ControlRow>
+          </DashboardSection>
+
+          <DashboardSection title="Architecture">
             <ControlRow label="Model width D" value={layerConfig.dModel.toLocaleString()}>
               <Slider accent="amber" value={[layerConfig.dModel]} min={512} max={8192} step={512} onValueChange={(v) => setConfig({ dModel: v[0] })} />
             </ControlRow>
@@ -229,73 +262,49 @@ export function LayerDashboard({
                 onChange={(mode) => setConfig({ mode })}
               />
             </ControlRow>
-            <ControlRow label="Current token position i (right)" value={posI}>
-              <Slider accent="cyan" value={[posI]} min={0} max={96} step={1} onValueChange={(v) => setPosI(v[0])} />
-            </ControlRow>
-            <ControlRow label="Highlight cache key j (left)" value={effectiveJ}>
-              <Slider
-                accent="rose"
-                value={[effectiveJ]}
-                min={0}
-                max={Math.max(posI, 1)}
-                step={1}
-                onValueChange={(v) => setPosJ(v[0])}
-              />
-            </ControlRow>
-            <ControlRow label="Head dimension" value={headDim}>
-              <div className="readonly-track">derived from D / N when divisible</div>
-            </ControlRow>
-            <ControlRow label="RoPE base" value={base.toLocaleString()}>
-              <Slider
-                accent="violet"
-                value={[base]}
-                min={1000}
-                max={50000}
-                step={1000}
-                onValueChange={(v) => setBase(v[0])}
-              />
-            </ControlRow>
-          </div>
+          </DashboardSection>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4 space-y-3 text-sm">
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500">Per-layer params</span>
-              <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.params)}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500">Per-layer forward FLOPs</span>
-              <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.forwardFlops)}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500">Per-layer training FLOPs</span>
-              <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.trainingFlops)}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500">Attn / FFN FLOPs</span>
-              <span className="stat-value text-lg text-slate-200">{layerModel.totals.attentionToFfnRatio.toFixed(2)}x</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500">KV cache</span>
-              <span className="stat-value text-lg text-slate-200">{formatBytes(layerModel.kvCache.bytes)}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500">Δ = j - i</span>
-              <span className="stat-value text-lg text-slate-200">{delta}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500">Slowest phase gap</span>
-              <span className="stat-value text-lg text-slate-200">{relativePhase.toFixed(2)} rad</span>
-            </div>
-            <p className="text-slate-500 leading-relaxed text-xs border-t border-slate-800 pt-3">
-              KV cache uses {layerModel.kvCache.formula}. At decode step i, softmax uses the current query against cached
-              keys 0...i; RoPE depends only on j-i for each pair.
-            </p>
-            {layerModel.warnings.map((warning) => (
-              <p key={warning} className="text-amber-300 text-xs leading-relaxed">
-                {warning}
+          <DashboardSection title="Stats">
+            <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4 space-y-3 text-sm">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">Per-layer params</span>
+                <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.params)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">Per-layer forward FLOPs</span>
+                <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.forwardFlops)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">Per-layer training FLOPs</span>
+                <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.trainingFlops)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">Attn / FFN FLOPs</span>
+                <span className="stat-value text-lg text-slate-200">{layerModel.totals.attentionToFfnRatio.toFixed(2)}x</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">KV cache</span>
+                <span className="stat-value text-lg text-slate-200">{formatBytes(layerModel.kvCache.bytes)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">Δ = j - i</span>
+                <span className="stat-value text-lg text-slate-200">{delta}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">Slowest phase gap</span>
+                <span className="stat-value text-lg text-slate-200">{relativePhase.toFixed(2)} rad</span>
+              </div>
+              <p className="text-slate-500 leading-relaxed text-xs border-t border-slate-800 pt-3">
+                KV cache uses {layerModel.kvCache.formula}. At decode step i, softmax uses the current query against cached
+                keys 0...i; RoPE depends only on j-i for each pair.
               </p>
-            ))}
-          </div>
+              {layerModel.warnings.map((warning) => (
+                <p key={warning} className="text-amber-300 text-xs leading-relaxed">
+                  {warning}
+                </p>
+              ))}
+            </div>
+          </DashboardSection>
         </CardContent>
       </Card>
     </motion.div>
