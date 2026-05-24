@@ -59,6 +59,12 @@ const LENSES: Array<{ id: Lens; label: string; short: string }> = [
   { id: 'parallelism', label: 'Parallelism', short: 'Par' },
 ]
 
+const FORWARD_FLOPS_LABEL: Record<LayerConfig['mode'], string> = {
+  decode: 'Per-layer forward FLOPs · decode step (1 query token)',
+  prefill: 'Per-layer forward FLOPs · prefill (T tokens)',
+  training: 'Per-layer forward FLOPs · per step (T tokens)',
+}
+
 const SOURCE_CONCEPTS: Record<Lens, string[]> = {
   flow: ['pre-norm', 'residual stream', 'branch corrections'],
   shapes: ['B,T,D', 'N query heads', 'K KV heads', 'GQA'],
@@ -270,12 +276,12 @@ export function LayerDashboard({
                 <span className="text-slate-500">Per-layer params</span>
                 <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.params)}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">Per-layer forward FLOPs</span>
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-slate-500">{FORWARD_FLOPS_LABEL[layerConfig.mode]}</span>
                 <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.forwardFlops)}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">Per-layer training FLOPs</span>
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-slate-500">Per-layer training FLOPs · fwd+bwd, T tokens</span>
                 <span className="stat-value text-lg text-slate-200">{formatCount(layerModel.totals.trainingFlops)}</span>
               </div>
               <div className="flex justify-between items-center">

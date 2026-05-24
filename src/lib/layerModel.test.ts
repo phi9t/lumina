@@ -17,7 +17,7 @@ describe('deriveLayerModel', () => {
   })
 
   test('distinguishes forward FLOPs from training FLOPs', () => {
-    const model = deriveLayerModel(DEFAULT_LAYER_CONFIG)
+    const model = deriveLayerModel({ ...DEFAULT_LAYER_CONFIG, mode: 'prefill' })
     const modules = Object.values(model.modules)
     const expectedForwardFlops = modules.reduce(
       (total, module) => total + module.forwardFlops,
@@ -36,9 +36,25 @@ describe('deriveLayerModel', () => {
     expect(model.totals.forwardFlops).toBe(model.totals.flops)
   })
 
+  test('decode mode costs a single query token of forward compute', () => {
+    const prefill = deriveLayerModel({ ...DEFAULT_LAYER_CONFIG, mode: 'prefill' })
+    const decode = deriveLayerModel({ ...DEFAULT_LAYER_CONFIG, mode: 'decode' })
+
+    // Forward projections process one query token instead of the full sequence.
+    expect(decode.modules.qkv.forwardFlops).toBe(prefill.modules.qkv.forwardFlops / DEFAULT_LAYER_CONFIG.seqLen)
+    expect(decode.totals.forwardFlops).toBe(prefill.totals.forwardFlops / DEFAULT_LAYER_CONFIG.seqLen)
+    // Attention is linear in T under decode, quadratic under prefill.
+    expect(decode.totals.attentionDotFlops).toBe(prefill.totals.attentionDotFlops / DEFAULT_LAYER_CONFIG.seqLen)
+    // Training FLOPs are full-sequence regardless of the active mode.
+    expect(decode.modules.qkv.trainingFlops).toBe(prefill.modules.qkv.trainingFlops)
+    expect(decode.totals.trainingFlops).toBe(prefill.totals.trainingFlops)
+    // KV cache is persistent decode state and does not depend on query-token count.
+    expect(decode.kvCache.bytes).toBe(prefill.kvCache.bytes)
+  })
+
   test('shows attention dot-product compute growing faster than FFN compute as context grows', () => {
-    const shortContext = deriveLayerModel({ ...DEFAULT_LAYER_CONFIG, seqLen: 128 })
-    const longContext = deriveLayerModel({ ...DEFAULT_LAYER_CONFIG, seqLen: 32768 })
+    const shortContext = deriveLayerModel({ ...DEFAULT_LAYER_CONFIG, seqLen: 128, mode: 'prefill' })
+    const longContext = deriveLayerModel({ ...DEFAULT_LAYER_CONFIG, seqLen: 32768, mode: 'prefill' })
     const expectedAttentionDotRatio = (32768 / 128) ** 2
 
     expect(shortContext.totals.attentionToFfnRatio).toBeLessThan(1)

@@ -90,8 +90,17 @@ export const LENS_EXPLANATIONS: Record<Lens, string> = {
 const TRAINING_MATMUL_FACTOR = 6
 const FORWARD_MATMUL_FACTOR = 2
 
+/**
+ * Forward-pass query tokens: decode pushes a single new token through the
+ * projections (against the full cached sequence), while prefill and training
+ * process all T tokens at once. Training FLOPs are always full-sequence.
+ */
+function queryTokenCount(config: LayerConfig): number {
+  return config.mode === 'decode' ? 1 : config.seqLen
+}
+
 function forwardMatmulFlops(config: LayerConfig, params: number) {
-  return FORWARD_MATMUL_FACTOR * config.batch * config.seqLen * params
+  return FORWARD_MATMUL_FACTOR * config.batch * queryTokenCount(config) * params
 }
 
 function trainingMatmulFlops(config: LayerConfig, params: number) {
@@ -99,7 +108,7 @@ function trainingMatmulFlops(config: LayerConfig, params: number) {
 }
 
 function activationBytes(config: LayerConfig, width: number) {
-  return config.batch * config.seqLen * width * config.precisionBytes
+  return config.batch * queryTokenCount(config) * width * config.precisionBytes
 }
 
 function makeAccounting(input: Omit<ModuleAccounting, 'flops'>): ModuleAccounting {
@@ -155,8 +164,9 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
   const ffnUpParams = 2 * config.dModel * config.ffnDim
   const ffnDownParams = config.dModel * config.ffnDim
 
+  const queryTokens = queryTokenCount(config)
   const attentionDotForwardFlops =
-    4 * config.batch * config.seqLen * config.seqLen * config.numHeads * config.headDim
+    4 * config.batch * queryTokens * config.seqLen * config.numHeads * config.headDim
   const attentionDotTrainingFlops =
     12 * config.batch * config.seqLen * config.seqLen * config.numHeads * config.headDim
   const qkvForwardFlops = forwardMatmulFlops(config, qkvParams)
@@ -183,7 +193,7 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       inputShape: 'B,T,D',
       outputShape: 'B,T,D',
       params: 2 * config.dModel,
-      forwardFlops: 5 * config.batch * config.seqLen * config.dModel,
+      forwardFlops: 5 * config.batch * queryTokens * config.dModel,
       trainingFlops: 15 * config.batch * config.seqLen * config.dModel,
       memoryBytes: activationBytes(config, config.dModel),
       summary: 'Pre-normalizes the residual stream before attention reads it.',
@@ -207,7 +217,7 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       inputShape: 'Q: B,T,N,H · K: B,T,K,H',
       outputShape: 'rotated Q,K with unchanged shape',
       params: 0,
-      forwardFlops: 4 * config.batch * config.seqLen * (qWidth + kvWidth),
+      forwardFlops: 4 * config.batch * queryTokens * (qWidth + kvWidth),
       trainingFlops: 8 * config.batch * config.seqLen * (qWidth + kvWidth),
       memoryBytes: activationBytes(config, qWidth + kvWidth),
       summary: 'Applies position-dependent rotations to 2D pairs inside Q and K.',
@@ -221,9 +231,9 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       params: 0,
       forwardFlops: attentionDotForwardFlops,
       trainingFlops: attentionDotTrainingFlops,
-      memoryBytes: config.batch * config.numHeads * config.seqLen * config.seqLen * config.precisionBytes,
+      memoryBytes: config.batch * config.numHeads * queryTokens * config.seqLen * config.precisionBytes,
       summary: 'Scores every query against visible keys, softmaxes over positions, then mixes values.',
-      sourceCue: 'dot attention: forward 4*B*T^2*N*H, train 12*B*T^2*N*H',
+      sourceCue: 'dot attention: forward 4*B*Tq*T*N*H (Tq=1 in decode), train 12*B*T^2*N*H',
       parallelism: ['TP', 'CP'],
     }),
     oproj: makeAccounting({
@@ -243,7 +253,7 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       inputShape: 'B,T,D',
       outputShape: 'B,T,D',
       params: 2 * config.dModel,
-      forwardFlops: 5 * config.batch * config.seqLen * config.dModel,
+      forwardFlops: 5 * config.batch * queryTokens * config.dModel,
       trainingFlops: 15 * config.batch * config.seqLen * config.dModel,
       memoryBytes: activationBytes(config, config.dModel),
       summary: 'Pre-normalizes the post-attention residual before the dense FFN.',
@@ -267,7 +277,7 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       inputShape: 'gate/up: B,T,F',
       outputShape: 'B,T,F',
       params: 0,
-      forwardFlops: 8 * config.batch * config.seqLen * config.ffnDim,
+      forwardFlops: 8 * config.batch * queryTokens * config.ffnDim,
       trainingFlops: 16 * config.batch * config.seqLen * config.ffnDim,
       memoryBytes: activationBytes(config, config.ffnDim),
       summary: 'Applies the SwiGLU non-linearity before projecting back down.',
@@ -291,7 +301,7 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       inputShape: 'B,T,D + B,T,D',
       outputShape: 'B,T,D',
       params: 0,
-      forwardFlops: config.batch * config.seqLen * config.dModel,
+      forwardFlops: config.batch * queryTokens * config.dModel,
       trainingFlops: 2 * config.batch * config.seqLen * config.dModel,
       memoryBytes: activationBytes(config, config.dModel),
       summary: 'Adds the attention branch correction into the residual stream.',
@@ -303,7 +313,7 @@ export function deriveLayerModel(config: LayerConfig): LayerModel {
       inputShape: 'B,T,D + B,T,D',
       outputShape: 'B,T,D',
       params: 0,
-      forwardFlops: config.batch * config.seqLen * config.dModel,
+      forwardFlops: config.batch * queryTokens * config.dModel,
       trainingFlops: 2 * config.batch * config.seqLen * config.dModel,
       memoryBytes: activationBytes(config, config.dModel),
       summary: 'Adds the FFN branch correction into the residual stream.',

@@ -39,7 +39,7 @@ Product constraints live in [docs/design-principles.md](docs/design-principles.m
 - **Layer lenses:** flow, shapes, compute, memory, and parallelism views grounded in the same layer model.
 - **RoPE workbench:** Identity, Cache, and Spectrum views for interactively exploring rotary position behavior.
 - **Right:** persistent layer controls, source-concept chips, KV cache estimates, and live compute/memory/shape readouts.
-- **Optional 3D:** a lazily loaded `3D reference` scene for RoPE, kept secondary to the 2D workbench.
+- **Execution mode:** decode / prefill / training retargets the forward FLOP and activation accounting (decode = one query token against the full KV cache).
 
 ## Stack
 
@@ -49,7 +49,6 @@ Product constraints live in [docs/design-principles.md](docs/design-principles.m
 - Tailwind CSS 4
 - Framer Motion
 - Radix Slider
-- React Three Fiber / Drei / Three.js for the optional 3D reference
 - Vitest and ESLint for local verification
 
 ## Requirements
@@ -85,7 +84,7 @@ src/
   TransformerBlockView.tsx        # Compact SVG transformer block selector
   components/dashboard/           # Right-hand layer dashboard and controls
   components/block/               # SVG block primitives and detail drawer
-  components/rope/                # RoPE workbench, 2D views, lazy 3D scene
+  components/rope/                # RoPE workbench and 2D views
   components/ui/                  # Small local UI primitives
   lib/layerModel.ts               # Layer accounting, lenses, KV cache estimates
   lib/ropeMath.ts                 # Pure RoPE math helpers
@@ -108,8 +107,7 @@ Supporting docs:
   - `RopeIdentityView` shows absolute vs relative dot-product identity.
   - `RopeCacheView` shows left-to-right KV cache behavior.
   - `RopeSpectrumView` shows fast-to-slow RoPE frequency pairs.
-- `RopeScene3D` is code-split with `React.lazy` and only loads when the user opens `3D reference`.
-- `ropeTypes.ts` holds shared RoPE state types without importing Three.js.
+- `ropeTypes.ts` holds the shared RoPE state types consumed across the workbench views.
 
 ## Verification
 
