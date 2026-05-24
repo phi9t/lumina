@@ -1,5 +1,14 @@
 # Code review fix plan
 
+> **⚠️ OBSOLETE — historical record only.** This plan targets `src/RopeThreeJSVisualizer.tsx`
+> and a Three.js / drei 3D scene that no longer exist; the project was refactored to a
+> pure-2D workbench (`src/components/rope/`). Nearly all Phase 1 correctness items
+> (Esc handler, `firstTheta`/slowest-pair math, step-chain clamping, `posJ` clamp, the
+> ESLint blocker) and the Phase 4 accessibility items (keyboard nav, `role="group"`,
+> `aria-hidden` decoratives) have since shipped. File/line references below are stale.
+> Superseded by [`docs/rfcs/0001-post-readiness-correctness-and-a11y.md`](./rfcs/0001-post-readiness-correctness-and-a11y.md);
+> kept only because that RFC links here. Do not execute against current code.
+
 Detailed plan for fixes derived from a deep review of `src/`, captured for incremental execution. Phases are independent; lower phases are higher leverage and lower risk.
 
 ## Summary of issues found
